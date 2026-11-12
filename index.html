@@ -2,12 +2,12 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>Nave Espacial 3D - Sistema Solar Hiperrealista con EVE</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body { width: 100%; height: 100%; overflow: hidden; background: #0a1930; font-family: Arial, sans-serif; color: #fff; }
-    #canvas { width: 100%; height: 100%; display: block; cursor: grab; }
+    #canvas { width: 100%; height: 100%; display: block; cursor: grab; touch-action: none; -webkit-touch-callout: none; }
     #canvas:active { cursor: grabbing; }
 
     /* --- PANTALLA DE INICIO (DESBLOQUEA AUDIO) --- */
@@ -169,6 +169,13 @@
     #luna2-close { position: absolute; top: 10px; right: 12px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(0,240,255,0.6); background: rgba(0,240,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; }
     #luna2-close:hover { background: rgba(0,240,255,0.3); }
 
+    .panel-close { float: right; position: sticky; top: 0; z-index: 2; width: 30px; height: 30px; margin: -4px -4px 4px 8px; border-radius: 50%;
+      background: rgba(0,240,255,0.15); border: 1px solid rgba(0,240,255,0.7); color: #00f0ff; font-size: 0.95rem; line-height: 1;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; touch-action: manipulation; -webkit-tap-highlight-color: transparent; }
+    .panel-close:hover, .panel-close:active { background: rgba(0,240,255,0.4); color: #fff; }
+    #comments-panel .panel-close { position: absolute; top: 8px; right: 8px; float: none; margin: 0; }
+    #comments-panel h3 { padding-right: 36px; }
+
     #sites-panel, #pads-panel { position: fixed; top: 80px; left: 75px; z-index: 35; width: min(88%, 300px); max-height: 70vh; overflow-y: auto;
       background: rgba(10,25,55,0.96); border: 1px solid rgba(0,240,255,0.7); border-radius: 12px; padding: 12px; backdrop-filter: blur(8px);
       opacity: 0; pointer-events: none; transition: opacity 0.3s; box-shadow: 0 0 30px rgba(0,240,255,0.3); }
@@ -213,6 +220,40 @@
     #error-overlay h2 { color: #ff6976; margin-bottom: 10px; }
     #error-overlay p { color: #ddd; font-size: .9rem; line-height: 1.5; }
 
+
+    /* --- MODO CELULAR (BOTONES TÁCTILES) --- */
+    #mobile-controls { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 25; pointer-events: none;
+      user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; touch-action: none; }
+    body.mobile-mode #mobile-controls { display: block; }
+    .mc-cluster { position: absolute; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 196px; height: 196px; pointer-events: none; }
+    #mc-dpad { left: calc(12px + env(safe-area-inset-left, 0px)); }
+    #mc-actions { right: calc(12px + env(safe-area-inset-right, 0px)); width: 150px; height: 150px; }
+    .mc-btn { pointer-events: auto; position: absolute; width: 64px; height: 64px; border-radius: 50%;
+      background: rgba(10, 25, 55, 0.72); border: 2px solid rgba(0, 240, 255, 0.7); color: #cbe3ff;
+      font-size: 1.5rem; line-height: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      touch-action: none; -webkit-tap-highlight-color: transparent; backdrop-filter: blur(6px);
+      box-shadow: 0 0 14px rgba(0, 240, 255, 0.3); cursor: pointer; }
+    .mc-btn small { font-size: 0.55rem; margin-top: 2px; letter-spacing: 0.3px; }
+    .mc-btn.pressed { background: rgba(0, 240, 255, 0.4); color: #fff; box-shadow: 0 0 22px rgba(0, 240, 255, 0.8); }
+    #mc-up { left: 66px; top: 0; } #mc-down { left: 66px; top: 132px; }
+    #mc-left { left: 0; top: 66px; } #mc-right { left: 132px; top: 66px; }
+    #mc-fly-up { left: 0; top: 0; } #mc-fly-down { left: 86px; top: 0; }
+    #mc-interact { left: 43px; top: 0; display: none; background: rgba(0, 120, 255, 0.55); }
+    #mc-turbo { left: 0; top: 86px; } #mc-land { left: 86px; top: 86px; }
+    body.mobile-mode.is-walking #mc-fly-up, body.mobile-mode.is-walking #mc-fly-down { display: none; }
+    body.mobile-mode.is-walking #mc-interact { display: flex; }
+    body.mobile-mode .hud, body.mobile-mode .hint { display: none; }
+    body.mobile-mode .coords { top: 10px; right: 10px; padding: 6px 10px; font-size: .7rem; }
+    body.mobile-mode .speedometer { bottom: auto; top: 78px; right: 10px; font-size: .8rem; padding: 5px 10px; }
+    body.mobile-mode .menu-container { top: 10px; left: 10px; }
+    body.mobile-mode .eve-container { bottom: auto; top: 64px; left: 10px; max-width: 230px; transform: scale(.8); transform-origin: top left; }
+    body.mobile-mode #walk-hint { bottom: calc(222px + env(safe-area-inset-bottom, 0px)); font-size: .8rem; }
+    @media (max-height: 420px) {
+      body.mobile-mode .mc-cluster { transform: scale(.8); transform-origin: bottom left; }
+      body.mobile-mode #mc-actions { transform-origin: bottom right; }
+      body.mobile-mode .eve-container { display: none; }
+    }
+
     @media (max-width: 600px) {
       .hud { top: 75px; left: 10px; padding: 10px 12px; }
       .hud h1 { font-size: .9rem; }
@@ -256,6 +297,7 @@
       <div class="menu-item" id="music-menu-item" onclick="toggleMusic()">🔊 Silenciar Música</div>
       <div class="menu-item" id="eve-menu-item" onclick="toggleEveVisibility()">💬 Silenciar a EVE</div>
       <div class="menu-item" id="hud-menu-item" onclick="toggleHUD()">👁 Ocultar Controles</div>
+      <div class="menu-item" id="mobile-menu-item" onclick="toggleMobileControls()">📱 Jugar en celular (botones)</div>
     </div>
   </div>
 
@@ -296,6 +338,7 @@
   <div id="sites-panel"></div>
   <div id="pads-panel"></div>
   <div id="comments-panel">
+    <button class="panel-close" onclick="closePanel('comments-panel')" aria-label="Cerrar" title="✕">✕</button>
     <h3 id="cm-title"></h3>
     <div id="comments-note"></div>
     <div id="comments-list"></div>
@@ -304,6 +347,21 @@
     <button class="cm-send" id="cm-send"></button>
   </div>
   <div id="walk-hint"></div>
+  <div id="mobile-controls">
+    <div class="mc-cluster" id="mc-dpad">
+      <div class="mc-btn" id="mc-up" data-key="w">▲</div>
+      <div class="mc-btn" id="mc-left" data-key="a">◀</div>
+      <div class="mc-btn" id="mc-right" data-key="d">▶</div>
+      <div class="mc-btn" id="mc-down" data-key="s">▼</div>
+    </div>
+    <div class="mc-cluster" id="mc-actions">
+      <div class="mc-btn" id="mc-fly-up" data-key="e">⬆<small id="mc-lbl-up">Subir</small></div>
+      <div class="mc-btn" id="mc-fly-down" data-key="q">⬇<small id="mc-lbl-down">Bajar</small></div>
+      <div class="mc-btn" id="mc-interact">💬<small id="mc-lbl-interact">Interactuar</small></div>
+      <div class="mc-btn" id="mc-turbo">🚀<small id="mc-lbl-turbo">Turbo</small></div>
+      <div class="mc-btn" id="mc-land">🛬<small id="mc-lbl-land">Aterrizar</small></div>
+    </div>
+  </div>
 
   <!-- PANEL LUNA 2 -->
   <div id="luna2-panel" role="dialog" aria-live="polite">
@@ -455,6 +513,7 @@
       if (document.getElementById('luna2-panel').classList.contains('active')) renderLuna2Panel();
       if (window.refreshSkyLabels) window.refreshSkyLabels();
       if (window.renderCommentsUI) window.renderCommentsUI();
+      if (window.refreshMobileUI) window.refreshMobileUI();
       if (window.buildPadsPanel && document.getElementById('pads-panel').classList.contains('active')) window.buildPadsPanel();
     }
 
@@ -625,10 +684,14 @@
               card: [['Location', (world ? 'Moon' : 'Mars') + ' · lat ' + st.lat + '°, lon ' + st.lon + '°'], ['Abandoned', g.a], ['Purpose', g.p], ['Discoveries', g.d]] }
       };
     }
+    function closePanel(id) {
+      if (id === 'comments-panel') closeCommentsPanel();
+      else document.getElementById(id).classList.remove('active');
+    }
     function toggleSitesPanel() {
       const p = document.getElementById('sites-panel');
       if (!p.innerHTML) {
-        let h = '<h3>🌙 LUNA</h3>';
+        let h = '<button class="panel-close" onclick="closePanel(\'sites-panel\')" aria-label="Cerrar">✕</button><h3>🌙 LUNA</h3>';
         SITES.forEach((st, i) => { if (st.b === 'm') h += '<button class="site-btn" onclick="goToSite(' + i + ')">' + st.n + '</button>'; });
         h += '<h3>🔴 MARTE</h3>';
         SITES.forEach((st, i) => { if (st.b === 'M') h += '<button class="site-btn" onclick="goToSite(' + i + ')">' + st.n + '</button>'; });
@@ -1392,7 +1455,7 @@
       });
       window.buildPadsPanel = function () {
         const p = document.getElementById('pads-panel');
-        let h = '<h3>' + T('🛬 PLATAFORMAS DE ATERRIZAJE', '🛬 LANDING PADS') + '</h3>';
+        let h = '<button class="panel-close" onclick="closePanel(\'pads-panel\')" aria-label="Cerrar">✕</button><h3>' + T('🛬 PLATAFORMAS DE ATERRIZAJE', '🛬 LANDING PADS') + '</h3>';
         pads.forEach((pd, i) => { h += '<button class="site-btn" onclick="goToPad(' + i + ')">' + pd.emoji + ' ' + (currentLang === 'es' ? pd.es : pd.en) + '</button>'; });
         p.innerHTML = h;
       };
@@ -1413,10 +1476,140 @@
         land(pd.body);
       };
 
+      // ---------- Decoración extra: agujeros negros, meteoritos y perrito cohete ----------
+      const _e1 = new THREE.Vector3();
+      const blackHoles = [];
+      (function () {
+        const c = document.createElement('canvas'); c.width = c.height = 256; const x = c.getContext('2d');
+        const g = x.createRadialGradient(128, 128, 0, 128, 128, 128);
+        [[0, 'rgba(0,0,0,0)'], [0.36, 'rgba(0,0,0,0)'], [0.4, 'rgba(255,255,230,0.95)'], [0.55, 'rgba(255,170,50,0.8)'], [0.75, 'rgba(190,60,160,0.4)'], [1, 'rgba(60,20,120,0)']].forEach(s => g.addColorStop(s[0], s[1]));
+        x.fillStyle = g; x.fillRect(0, 0, 256, 256);
+        const diskTex = new THREE.CanvasTexture(c);
+        let guard = 0;
+        while (blackHoles.length < 3 && guard++ < 500) {
+          const a = Math.random() * Math.PI * 2, rad = 500 + Math.random() * 2800, R = 45 + Math.random() * 25;
+          const pos = new THREE.Vector3(Math.cos(a) * rad, -20 + Math.random() * 180, Math.sin(a) * rad);
+          if (pos.length() < 700 || planetObjects.some(p => p.position.distanceTo(pos) < p.radius + 600) || blackHoles.some(b => b.g.position.distanceTo(pos) < 900)) continue;
+          const grp = new THREE.Group(); grp.position.copy(pos);
+          grp.add(new THREE.Mesh(new THREE.SphereGeometry(R, 32, 32), new THREE.MeshBasicMaterial({ color: 0x000000, fog: false })));
+          const tilt = new THREE.Group(); tilt.rotation.set(Math.random() * 0.8 - 0.4, 0, Math.random() * 0.8 - 0.4); grp.add(tilt);
+          const mat = new THREE.MeshBasicMaterial({ map: diskTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false });
+          const disk = new THREE.Mesh(new THREE.PlaneGeometry(R * 6.4, R * 6.4), mat); disk.rotation.x = -Math.PI / 2; tilt.add(disk);
+          const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: diskTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false, opacity: 0.85 }));
+          halo.scale.set(R * 4.2, R * 4.2, 1); grp.add(halo);
+          scene.add(grp);
+          blackHoles.push({ g: grp, disk, R, range: R * 9 });
+          decoColliders.push({ position: grp.position, radius: R * 1.15 });
+        }
+      })();
+      let bhWarn = 0;
+      function blackHolePull(dt) {
+        ship.getWorldPosition(_e1);
+        for (const b of blackHoles) {
+          const d = _e1.distanceTo(b.g.position);
+          if (d < b.range && d > 1) {
+            const k = 1 - d / b.range;
+            velocity.addScaledVector(_dir.subVectors(b.g.position, _e1).normalize(), 170 * k * k * dt * 2.2);
+            if (d < b.range * 0.6 && clock.elapsedTime - bhWarn > 15) {
+              bhWarn = clock.elapsedTime;
+              triggerEveMessage(T('⚠️ ¡Cuidado! Un agujero negro te está atrayendo. ¡Usa el turbo para escapar!', '⚠️ Careful! A black hole is pulling you in. Use turbo to escape!'));
+            }
+          }
+        }
+      }
+
+      // Meteoritos que derivan y giran alrededor de la nave (siempre hay rocas cerca)
+      const METEOR_N = 60, MD = 2600, meteorites = [];
+      (function () {
+        const geos = [1, 2, 3].map(s => {
+          const g = new THREE.IcosahedronGeometry(1, 1), p = g.attributes.position;
+          for (let i = 0; i < p.count; i++) {
+            const x = p.getX(i), y = p.getY(i), z = p.getZ(i), k = 0.8 + 0.2 * Math.sin(x * 4.1 + s) * Math.cos(y * 3.3 + s * 2) + 0.1 * Math.sin(z * 5 + s);
+            p.setXYZ(i, x * k, y * k, z * k);
+          }
+          return g;
+        });
+        const rock = new THREE.MeshStandardMaterial({ color: 0x8a7a6a, roughness: 0.95, flatShading: true });
+        const fire = new THREE.MeshStandardMaterial({ color: 0x3a1a0a, emissive: 0xff5a1a, emissiveIntensity: 0.9, roughness: 0.8, flatShading: true });
+        for (let i = 0; i < METEOR_N; i++) {
+          const isFire = i < 8, r = isFire ? 5 + Math.random() * 6 : 3 + Math.pow(Math.random(), 2) * 14;
+          const mesh = new THREE.Mesh(geos[i % 3], isFire ? fire : rock);
+          mesh.scale.set(r, r * (0.7 + Math.random() * 0.4), r * (0.8 + Math.random() * 0.4));
+          if (isFire) { const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowWhite, color: 0xff7a2a, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false, opacity: 0.8 })); gl.scale.setScalar(5); mesh.add(gl); }
+          scene.add(mesh);
+          meteorites.push({ mesh, base: new THREE.Vector3(Math.random(), Math.random(), Math.random()).multiplyScalar(MD), vel: randDir().multiplyScalar(4 + Math.random() * 12), spin: randDir().multiplyScalar(0.2 + Math.random() * 0.6) });
+          decoColliders.push({ position: mesh.position, radius: r * 0.9 });
+        }
+      })();
+
+      // Perrito astronauta montado en un cohete
+      const dogRocket = new THREE.Group(), dogInner = new THREE.Group(); dogRocket.add(dogInner); dogRocket.scale.setScalar(1.7);
+      const dogParts = {};
+      (function () {
+        const M = (c, o) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: 0.5 }, o || {}));
+        const add = (geo, mat, x, y, z, par) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); (par || dogInner).add(m); return m; };
+        const body = add(new THREE.CylinderGeometry(2, 2, 8, 16), M(0xeef2fb, { metalness: 0.3 }), 0, 0, 0); body.rotation.x = Math.PI / 2;
+        const stripe = add(new THREE.CylinderGeometry(2.05, 2.05, 1.2, 16), M(0xe53935), 0, 0, -1.2); stripe.rotation.x = Math.PI / 2;
+        const nose = add(new THREE.ConeGeometry(2, 4, 16), M(0xe53935), 0, 0, 6); nose.rotation.x = Math.PI / 2;
+        for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2; const f = add(new THREE.BoxGeometry(0.25, 2.4, 2.4), M(0xe53935), Math.cos(a) * 2.3, Math.sin(a) * 2.3, -3.4); f.rotation.z = a - Math.PI / 2; }
+        const win = add(new THREE.SphereGeometry(0.7, 12, 12), M(0x00d0ff, { emissive: 0x003355 }), 0, 0.4, 3.4); win.scale.z = 0.4;
+        const fl1 = add(new THREE.ConeGeometry(1.4, 5.5, 12), new THREE.MeshBasicMaterial({ color: 0xff7a00 }), 0, 0, -6.9); fl1.rotation.x = -Math.PI / 2;
+        const fl2 = add(new THREE.ConeGeometry(0.8, 3.5, 12), new THREE.MeshBasicMaterial({ color: 0xffee55 }), 0, 0, -5.9); fl2.rotation.x = -Math.PI / 2;
+        const gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowWhite, color: 0xff9a30, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false })); gl.position.z = -8; gl.scale.setScalar(14); dogInner.add(gl);
+        dogParts.fl = [fl1, fl2, gl];
+        // cúpula de cristal + perrito
+        const dome = add(new THREE.SphereGeometry(2.7, 20, 16), new THREE.MeshPhysicalMaterial({ color: 0x9fe8ff, transparent: true, opacity: 0.28, roughness: 0.05 }), 0, 2.9, 0.2);
+        const fur = M(0xf1d3a5), brown = M(0x8a5a2b), black = M(0x111111);
+        add(new THREE.SphereGeometry(1.3, 14, 12), fur, 0, 2.2, -0.5);
+        const head = new THREE.Group(); head.position.set(0, 3.2, 0.5); dogInner.add(head); dogParts.head = head;
+        add(new THREE.SphereGeometry(1.15, 16, 14), fur, 0, 0, 0, head);
+        const snout = add(new THREE.SphereGeometry(0.55, 12, 10), M(0xfff0d8), 0, -0.25, 0.95, head); snout.scale.set(1, 0.8, 1.2);
+        add(new THREE.SphereGeometry(0.2, 10, 8), black, 0, 0.05, 1.5, head);
+        add(new THREE.SphereGeometry(0.15, 8, 8), black, -0.45, 0.4, 0.95, head); add(new THREE.SphereGeometry(0.15, 8, 8), black, 0.45, 0.4, 0.95, head);
+        const tongue = add(new THREE.BoxGeometry(0.28, 0.06, 0.55), M(0xff6f91), 0, -0.62, 1.35, head); dogParts.tongue = tongue;
+        dogParts.ears = [-1, 1].map(s => { const p = new THREE.Group(); p.position.set(s * 1.0, 0.7, -0.1); head.add(p); const e = add(new THREE.SphereGeometry(0.5, 10, 10), brown, s * 0.25, -0.55, 0, p); e.scale.set(0.5, 1.2, 0.8); return p; });
+        const tailP = new THREE.Group(); tailP.position.set(0, 2.1, -1.7); dogInner.add(tailP); dogParts.tail = tailP;
+        const tl = add(new THREE.CylinderGeometry(0.15, 0.25, 1.4, 8), brown, 0, 0.6, 0, tailP); tl.rotation.x = -0.5;
+        // "¡GUAU!"
+        const cv = document.createElement('canvas'); cv.width = 256; cv.height = 96; const cx = cv.getContext('2d');
+        cx.fillStyle = 'rgba(255,255,255,0.95)'; cx.beginPath(); cx.roundRect(4, 4, 248, 88, 30); cx.fill();
+        cx.fillStyle = '#0a1930'; cx.font = 'bold 54px Arial'; cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText('¡GUAU!', 128, 50);
+        const bark = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(cv), transparent: true, depthWrite: false, fog: false, opacity: 0 }));
+        bark.position.set(0, 9, 1); bark.scale.set(14, 5.2, 1); dogRocket.add(bark); dogParts.bark = bark;
+      })();
+      scene.add(dogRocket);
+      let dogA = 0, dogInit = false; const _dp = new THREE.Vector3(), _dt = new THREE.Vector3(), _dl = new THREE.Vector3();
+
+      function updateExtraDecor(dt, t) {
+        blackHoles.forEach(b => { b.disk.rotation.z += dt * 0.5; });
+        const cx = camera.position.x, cy = camera.position.y, cz = camera.position.z, half = MD / 2;
+        meteorites.forEach(m => {
+          const bx = m.base.x + m.vel.x * t, by = m.base.y + m.vel.y * t, bz = m.base.z + m.vel.z * t;
+          m.mesh.position.set(cx + ((((bx - cx) % MD) + MD) % MD) - half, cy + ((((by - cy) % MD) + MD) % MD) - half, cz + ((((bz - cz) % MD) + MD) % MD) - half);
+          m.mesh.rotation.x += m.spin.x * dt; m.mesh.rotation.y += m.spin.y * dt; m.mesh.rotation.z += m.spin.z * dt;
+        });
+        // perrito: escolta a la nave en una órbita amplia
+        dogA += dt * 0.35;
+        ship.getWorldPosition(_dt); _dt.x += Math.cos(dogA) * 170; _dt.y += 20 + Math.sin(dogA * 1.7) * 35; _dt.z += Math.sin(dogA) * 170;
+        if (!dogInit) { dogRocket.position.copy(_dt); dogInit = true; }
+        _dp.copy(dogRocket.position); dogRocket.position.lerp(_dt, 1 - Math.exp(-2.5 * dt));
+        _dl.subVectors(dogRocket.position, _dp);
+        if (_dl.lengthSq() > 1e-6) dogRocket.lookAt(_dl.add(dogRocket.position));
+        dogInner.rotation.z = Math.sin(t * 1.3) * 0.25;
+        const f = 1 + 0.25 * Math.sin(t * 40) + 0.1 * Math.sin(t * 23);
+        dogParts.fl[0].scale.set(1, 1, f); dogParts.fl[1].scale.set(1, 1, f * 1.1); dogParts.fl[2].scale.setScalar(13 + f * 2);
+        dogParts.tail.rotation.y = Math.sin(t * 14) * 0.7;
+        dogParts.head.rotation.z = Math.sin(t * 2.2) * 0.12;
+        dogParts.ears.forEach((e, i) => { e.rotation.z = (i ? -1 : 1) * (0.25 + Math.sin(t * 9 + i) * 0.3); });
+        dogParts.tongue.position.y = -0.62 + Math.sin(t * 8) * 0.07;
+        const ph = t % 7; dogParts.bark.material.opacity = ph < 1.6 ? Math.min(1, Math.sin(Math.PI * ph / 1.6) * 2) : 0;
+      }
+
       // ---------- Actualización por fotograma ----------
       const _dv = new THREE.Vector3(), _dv2 = new THREE.Vector3();
       function updateDecor(dt, t) {
         sky.position.copy(camera.position);
+        updateExtraDecor(dt, t);
         haloStars.material.opacity = 0.5 + 0.12 * Math.sin(t * 1.7);
         placeMoons(t);
         // cometas
@@ -1502,12 +1695,13 @@
       // --- CONTROLES MOUSE Y TECLADO ---
       let isDragging = false, previousMousePosition = { x: 0, y: 0 };
       let cameraAngleX = 0, cameraAngleY = 0.3;
+      const PITCH_LIMIT = 1.5; // ~86°: permite mirar casi vertical hacia arriba y hacia abajo
 
       canvas.addEventListener('mousedown', (e) => { isDragging = true; previousMousePosition = { x: e.clientX, y: e.clientY }; });
       canvas.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
         cameraAngleX -= (e.clientX - previousMousePosition.x) * 0.005;
-        cameraAngleY = Math.max(-0.2, Math.min(0.8, cameraAngleY + (e.clientY - previousMousePosition.y) * 0.005));
+        cameraAngleY = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, cameraAngleY + (e.clientY - previousMousePosition.y) * 0.005));
         previousMousePosition = { x: e.clientX, y: e.clientY };
       });
       window.addEventListener('mouseup', () => { isDragging = false; });
@@ -1591,7 +1785,15 @@
       const walk = { active: false, body: null, pos: new THREE.Vector3(), up: new THREE.Vector3(0, 1, 0), fwd: new THREE.Vector3(0, 0, -1), face: new THREE.Vector3(0, 0, -1), lastX: 0, t: 0, near: null };
       const walkHintEl = document.getElementById('walk-hint');
       let lastHint = '';
-      function setHint(t) { if (t !== lastHint) { lastHint = t; walkHintEl.textContent = t; walkHintEl.style.opacity = t ? 1 : 0; } }
+      function mobileText(t) {
+        if (!document.body.classList.contains('mobile-mode')) return t;
+        return t.replace('Pulsa E o haz clic para hablar con', 'Toca 💬 o la misión para hablar con')
+                .replace('Press E or click to talk to', 'Tap 💬 or the mission to talk to')
+                .replace('W A S D caminar · arrastra: girar cámara · F junto a la nave: despegar', 'Botones: caminar · arrastra: girar cámara · 🛬 junto a la nave: despegar')
+                .replace('W A S D walk · drag: turn camera · F next to the ship: take off', 'Buttons: walk · drag: turn camera · 🛬 next to the ship: take off')
+                .replace('Pulsa F', 'Toca 🛬').replace('Press F', 'Tap 🛬');
+      }
+      function setHint(t) { const tt = mobileText(t); if (tt !== lastHint) { lastHint = tt; walkHintEl.textContent = tt; walkHintEl.style.opacity = tt ? 1 : 0; } }
 
       function buildAstronaut() {
         const g = new THREE.Group();
@@ -1660,6 +1862,80 @@
       }
       function interactNearest() { if (walk.near) openSitePanel(walk.near); }
 
+      // --- MODO CELULAR: botones táctiles + arrastrar para girar cámara ---
+      let mobileMode = false;
+      const bodyEl = document.body;
+      function setPressed(el, on) { el.classList.toggle('pressed', on); }
+      function bindHold(el, key) {
+        const down = (e) => { e.preventDefault(); try { el.setPointerCapture(e.pointerId); } catch (_) {} keys[key] = true; setPressed(el, true); };
+        const up = (e) => { e.preventDefault(); keys[key] = false; setPressed(el, false); };
+        el.addEventListener('pointerdown', down);
+        el.addEventListener('pointerup', up);
+        el.addEventListener('pointercancel', up);
+        el.addEventListener('lostpointercapture', up);
+        el.addEventListener('contextmenu', (e) => e.preventDefault());
+      }
+      function bindTap(el, fn) {
+        el.addEventListener('pointerdown', (e) => { e.preventDefault(); setPressed(el, true); fn(); });
+        const off = () => setPressed(el, false);
+        el.addEventListener('pointerup', off); el.addEventListener('pointercancel', off);
+        el.addEventListener('contextmenu', (e) => e.preventDefault());
+      }
+      document.querySelectorAll('#mobile-controls .mc-btn[data-key]').forEach(el => bindHold(el, el.dataset.key));
+      bindTap(document.getElementById('mc-interact'), () => {
+        if (walk.active) { if (walk.near) interactNearest(); else triggerEveMessage(T('💬 No hay nadie cerca para hablar. Acércate a una misión.', '💬 Nobody nearby to talk to. Get close to a mission.')); }
+      });
+      bindTap(document.getElementById('mc-land'), () => toggleLanding());
+      bindTap(document.getElementById('mc-turbo'), () => { keys.turbo = !keys.turbo; });
+
+      // Arrastrar con el dedo sobre el canvas = girar la cámara (igual que con el mouse)
+      let touchId = null, lastTouch = { x: 0, y: 0 };
+      canvas.addEventListener('pointerdown', (e) => {
+        if (e.pointerType !== 'touch' || touchId !== null) return;
+        touchId = e.pointerId; lastTouch = { x: e.clientX, y: e.clientY };
+      });
+      canvas.addEventListener('pointermove', (e) => {
+        if (e.pointerId !== touchId) return;
+        cameraAngleX -= (e.clientX - lastTouch.x) * 0.006;
+        cameraAngleY = Math.max(-PITCH_LIMIT, Math.min(PITCH_LIMIT, cameraAngleY + (e.clientY - lastTouch.y) * 0.006));
+        lastTouch = { x: e.clientX, y: e.clientY };
+      });
+      const endTouch = (e) => { if (e.pointerId === touchId) touchId = null; };
+      canvas.addEventListener('pointerup', endTouch);
+      canvas.addEventListener('pointercancel', endTouch);
+
+      function refreshMobileUI() {
+        const es = currentLang === 'es';
+        const item = document.getElementById('mobile-menu-item');
+        item.textContent = mobileMode ? (es ? '🖥 Volver a modo PC (teclado)' : '🖥 Back to PC mode (keyboard)')
+                                      : (es ? '📱 Jugar en celular (botones)' : '📱 Play on mobile (buttons)');
+        const L = (id, a, b) => { document.getElementById(id).textContent = es ? a : b; };
+        L('mc-lbl-up', 'Subir', 'Up'); L('mc-lbl-down', 'Bajar', 'Down');
+        L('mc-lbl-interact', 'Interactuar', 'Interact'); L('mc-lbl-turbo', 'Turbo', 'Turbo');
+        L('mc-lbl-land', walk.active ? 'Despegar' : 'Aterrizar', walk.active ? 'Take off' : 'Land');
+        lastHint = '';
+      }
+      function toggleMobileControls(force) {
+        mobileMode = typeof force === 'boolean' ? force : !mobileMode;
+        bodyEl.classList.toggle('mobile-mode', mobileMode);
+        if (!mobileMode) for (const k of ['w', 'a', 's', 'd', 'q', 'e', 'turbo']) keys[k] = false;
+        document.getElementById('menu-dropdown').classList.remove('active');
+        refreshMobileUI();
+      }
+      window.toggleMobileControls = toggleMobileControls;
+      window.refreshMobileUI = refreshMobileUI;
+      // Estado visual de los botones (caminando / volando / turbo)
+      setInterval(() => {
+        if (!mobileMode) return;
+        bodyEl.classList.toggle('is-walking', !!walk.active);
+        setPressed(document.getElementById('mc-turbo'), !!keys.turbo);
+        const lbl = document.getElementById('mc-lbl-land'), es = currentLang === 'es';
+        const txt = walk.active ? (es ? 'Despegar' : 'Take off') : (es ? 'Aterrizar' : 'Land');
+        if (lbl.textContent !== txt) lbl.textContent = txt;
+      }, 200);
+      // Se activa solo en pantallas táctiles
+      if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) toggleMobileControls(true);
+
       function updateWalker(dt) {
         const R = walk.body.radius, up = walk.up.copy(walk.pos).normalize();
         const dY = cameraAngleX - walk.lastX; walk.lastX = cameraAngleX;
@@ -1697,14 +1973,28 @@
         setHint(best ? T('💬 Pulsa E o haz clic para hablar con ' + best.n, '💬 Press E or click to talk to ' + best.n)
                      : T('🧑‍🚀 W A S D caminar · arrastra: girar cámara · F junto a la nave: despegar', '🧑‍🚀 W A S D walk · drag: turn camera · F next to the ship: take off'));
       }
+      const _wl = new THREE.Vector3();
       function walkCamera() {
         const sph = walk.body.sphere;
         sph.getWorldQuaternion(_q); sph.getWorldPosition(_c); astro.getWorldPosition(_a);
         const up = _b.copy(_a).sub(_c).normalize();
         _fw.copy(walk.fwd).applyQuaternion(_q);
         camera.up.copy(up);
-        camera.position.copy(_a).addScaledVector(_fw, -9 * Math.cos(cameraAngleY * 0.6)).addScaledVector(up, 3 + cameraAngleY * 8);
-        camera.lookAt(_d.copy(_a).addScaledVector(up, 1.4));
+        const Y = cameraAngleY;
+        if (Y >= 0) {
+          // mirar hacia abajo: la cámara sube por encima del astronauta
+          const k = Y <= 0.8 ? Y * 0.6 : 0.48 + (Y - 0.8) * 1.2;
+          camera.position.copy(_a).addScaledVector(_fw, -9 * Math.cos(k)).addScaledVector(up, 3 + Y * 8);
+          camera.lookAt(_d.copy(_a).addScaledVector(up, 1.4));
+        } else {
+          // mirar hacia arriba: la cámara se queda sobre el suelo y levanta la vista hacia el cielo
+          camera.position.copy(_a).addScaledVector(_fw, -9).addScaledVector(up, 3 + Y * 0.8);
+          const v0 = _d.copy(_a).addScaledVector(up, 1.4).sub(camera.position).normalize();
+          const upPerp = _c.copy(up).addScaledVector(v0, -up.dot(v0)).normalize();
+          const q = -Y;
+          v0.multiplyScalar(Math.cos(q)).addScaledVector(upPerp, Math.sin(q));
+          camera.lookAt(_wl.copy(camera.position).addScaledVector(v0, 20));
+        }
       }
       function updateFlyHint() {
         const n = nearestBody();
@@ -1747,15 +2037,17 @@
           const targetWorldPos = new THREE.Vector3(0, 1 + 1.3, 0).applyMatrix4(basePad.matrixWorld);
           ship.position.copy(targetWorldPos);
           velocity.set(0, 0, 0);
-          ship.rotation.y += delta * 0.1;
+          ship.rotation.set(0, ship.rotation.y + delta * 0.1, 0);
         } else {
           const turboActive = !!keys.turbo;
           const acceleration = turboActive ? 350 : 190;
           const maxSpeed = turboActive ? 650 : 360;
           const damping = Math.pow(turboActive ? 0.965 : 0.93, delta * 60);
 
-          ship.rotation.set(0, cameraAngleX, 0);
-          const forwardDir = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraAngleX);
+          // la nave apunta y avanza hacia donde mira la cámara (incluye inclinación vertical)
+          ship.rotation.order = 'YXZ';
+          ship.rotation.set(-cameraAngleY, cameraAngleX, 0);
+          const forwardDir = new THREE.Vector3(-Math.sin(cameraAngleX) * Math.cos(cameraAngleY), -Math.sin(cameraAngleY), -Math.cos(cameraAngleX) * Math.cos(cameraAngleY));
           const rightDir = new THREE.Vector3(1, 0, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraAngleX);
 
           if (keys.w) velocity.addScaledVector(forwardDir, acceleration * delta);
@@ -1765,6 +2057,7 @@
           if (keys.q) velocity.y -= acceleration * delta;
           if (keys.e) velocity.y += acceleration * delta;
 
+          blackHolePull(delta);
           velocity.multiplyScalar(damping);
           velocity.clampLength(0, maxSpeed);
 
