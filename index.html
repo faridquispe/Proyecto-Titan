@@ -169,15 +169,34 @@
     #luna2-close { position: absolute; top: 10px; right: 12px; width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(0,240,255,0.6); background: rgba(0,240,255,0.1); color: #fff; font-size: 1rem; cursor: pointer; }
     #luna2-close:hover { background: rgba(0,240,255,0.3); }
 
-    #sites-panel { position: fixed; top: 80px; left: 75px; z-index: 35; width: min(88%, 300px); max-height: 70vh; overflow-y: auto;
+    #sites-panel, #pads-panel { position: fixed; top: 80px; left: 75px; z-index: 35; width: min(88%, 300px); max-height: 70vh; overflow-y: auto;
       background: rgba(10,25,55,0.96); border: 1px solid rgba(0,240,255,0.7); border-radius: 12px; padding: 12px; backdrop-filter: blur(8px);
       opacity: 0; pointer-events: none; transition: opacity 0.3s; box-shadow: 0 0 30px rgba(0,240,255,0.3); }
-    #sites-panel.active { opacity: 1; pointer-events: auto; }
-    #sites-panel h3 { color: #00f0ff; font-size: 0.85rem; margin: 8px 0 6px; letter-spacing: 1px; }
+    #sites-panel.active, #pads-panel.active { opacity: 1; pointer-events: auto; }
+    #sites-panel h3, #pads-panel h3 { color: #00f0ff; font-size: 0.85rem; margin: 8px 0 6px; letter-spacing: 1px; }
     .site-btn { display: block; width: 100%; text-align: left; margin-bottom: 4px; padding: 6px 10px; border-radius: 8px; cursor: pointer;
       background: rgba(0,240,255,0.08); border: 1px solid rgba(0,240,255,0.3); color: #dbe9ff; font-size: 0.8rem; }
     .site-btn:hover { background: rgba(0,240,255,0.25); color: #fff; }
 
+    #walk-hint { position: fixed; bottom: 70px; left: 50%; transform: translateX(-50%); z-index: 15; max-width: 90%; text-align: center;
+      background: rgba(10,25,55,0.9); border: 1px solid rgba(0,240,255,0.6); border-radius: 10px; padding: 8px 16px; font-size: 0.85rem; color: #e2ecff;
+      pointer-events: none; opacity: 0; transition: opacity 0.3s; box-shadow: 0 0 20px rgba(0,240,255,0.25); }
+
+    #comments-panel { position: fixed; top: 80px; left: 75px; z-index: 36; width: min(92%, 340px); max-height: 76vh; display: flex; flex-direction: column;
+      background: rgba(10,25,55,0.96); border: 1px solid rgba(0,240,255,0.7); border-radius: 12px; padding: 12px; backdrop-filter: blur(8px);
+      opacity: 0; pointer-events: none; transition: opacity 0.3s; box-shadow: 0 0 30px rgba(0,240,255,0.3); }
+    #comments-panel.active { opacity: 1; pointer-events: auto; }
+    #comments-panel h3 { color: #00f0ff; font-size: 0.85rem; margin-bottom: 6px; letter-spacing: 1px; }
+    #comments-note { font-size: 0.7rem; color: #ffb86b; margin-bottom: 8px; line-height: 1.3; }
+    #comments-list { overflow-y: auto; flex: 1; min-height: 80px; max-height: 38vh; margin-bottom: 8px; }
+    .cm-item { background: rgba(0,240,255,0.07); border-left: 3px solid #00f0ff; border-radius: 6px; padding: 6px 9px; margin-bottom: 6px; font-size: 0.8rem; line-height: 1.35; word-break: break-word; }
+    .cm-item b { color: #00f0ff; font-size: 0.75rem; }
+    .cm-item small { color: #8fa8cc; margin-left: 6px; font-size: 0.68rem; }
+    #comments-panel input, #comments-panel textarea { width: 100%; background: rgba(0,240,255,0.08); border: 1px solid rgba(0,240,255,0.4); border-radius: 8px;
+      color: #fff; padding: 7px 9px; font: inherit; font-size: 0.8rem; margin-bottom: 6px; resize: none; }
+    #comments-panel button.cm-send { width: 100%; padding: 8px; border-radius: 8px; border: none; cursor: pointer; font-weight: bold;
+      background: linear-gradient(135deg, #00f0ff, #0077ff); color: #0a1930; }
+    #comments-panel button.cm-send:disabled { opacity: 0.5; cursor: default; }
     .speedometer {
       position: absolute; bottom: 20px; right: 20px; z-index: 10;
       background: rgba(10, 25, 55, .88); border: 1px solid rgba(0,240,255,.6);
@@ -232,6 +251,8 @@
     <div class="menu-dropdown" id="menu-dropdown">
       <div class="menu-item" id="earth-menu-item" onclick="teleportToEarth()">🌍 Ir a la Tierra y Luna</div>
       <div class="menu-item" onclick="toggleSitesPanel()">📍 Misiones abandonadas (ir a ellas)</div>
+      <div class="menu-item" id="pads-menu-item" onclick="togglePadsPanel()">🛬 Plataformas de aterrizaje</div>
+      <div class="menu-item" id="comments-menu-item" onclick="toggleCommentsPanel()">💬 Comentarios</div>
       <div class="menu-item" id="music-menu-item" onclick="toggleMusic()">🔊 Silenciar Música</div>
       <div class="menu-item" id="eve-menu-item" onclick="toggleEveVisibility()">💬 Silenciar a EVE</div>
       <div class="menu-item" id="hud-menu-item" onclick="toggleHUD()">👁 Ocultar Controles</div>
@@ -245,7 +266,7 @@
     <p id="hud-ad"><strong>A / ←</strong> izquierda · <strong>D / →</strong> derecha</p>
     <p id="hud-qe"><strong>Q</strong> bajar altura (Y) · <strong>E</strong> subir altura (Y)</p>
     <p id="hud-space"><strong>ESPACIO</strong> activar turbo 🚀</p>
-    <p id="hud-park" style="color:#00f0ff; margin-top:5px;"><strong>TECLA F</strong>: Estacionar / Despegar en la Luna 🌙</p>
+    <p id="hud-park" style="color:#00f0ff; margin-top:5px;"><strong>TECLA F</strong>: Aterrizar / Despegar (cerca de un planeta) 🧑‍🚀</p>
   </div>
 
   <div class="coords">
@@ -273,6 +294,16 @@
   <canvas id="canvas"></canvas>
 
   <div id="sites-panel"></div>
+  <div id="pads-panel"></div>
+  <div id="comments-panel">
+    <h3 id="cm-title"></h3>
+    <div id="comments-note"></div>
+    <div id="comments-list"></div>
+    <input id="cm-name" maxlength="20" autocomplete="off" />
+    <textarea id="cm-text" rows="3" maxlength="200"></textarea>
+    <button class="cm-send" id="cm-send"></button>
+  </div>
+  <div id="walk-hint"></div>
 
   <!-- PANEL LUNA 2 -->
   <div id="luna2-panel" role="dialog" aria-live="polite">
@@ -309,7 +340,8 @@
         hudAD: "<strong>A / ←</strong> izquierda · <strong>D / →</strong> derecha",
         hudQE: "<strong>Q</strong> bajar altura (Y) · <strong>E</strong> subir altura (Y)",
         hudSpace: "<strong>ESPACIO</strong> activar turbo 🚀",
-        hudPark: "<strong>TECLA F</strong>: Estacionar / Despegar en la Luna 🌙",
+        hudPark: "<strong>TECLA F</strong>: Aterrizar / Despegar (cerca de un planeta) 🧑‍🚀",
+        padsMenu: "🛬 Plataformas de aterrizaje",
         eveChestTitle: "Haz clic en su pecho para molestarla",
         eveRole: "EVE - ASISTENTE CÓSMICO",
         eveReady: "Sistemas de navegación estelar listos.",
@@ -352,7 +384,8 @@
         hudAD: "<strong>A / ←</strong> left · <strong>D / →</strong> right",
         hudQE: "<strong>Q</strong> lower altitude (Y) · <strong>E</strong> raise altitude (Y)",
         hudSpace: "<strong>SPACE</strong> toggle turbo 🚀",
-        hudPark: "<strong>KEY F</strong>: Park / Takeoff on the Moon 🌙",
+        hudPark: "<strong>KEY F</strong>: Land / Take off (near a planet) 🧑‍🚀",
+        padsMenu: "🛬 Landing pads",
         eveChestTitle: "Click her chest to annoy her",
         eveRole: "EVE - COSMIC ASSISTANT",
         eveReady: "Stellar navigation systems ready.",
@@ -402,6 +435,7 @@
 
       document.getElementById('menu-btn').title = t.menuTitle;
       document.getElementById('earth-menu-item').textContent = t.earthTeleport;
+      document.getElementById('pads-menu-item').textContent = t.padsMenu;
       musicMenuItem.textContent = isMusicPlaying ? t.musicMute : t.musicUnmute;
       eveMenuItem.textContent = isEveVisible ? t.eveHide : t.eveShow;
       hudMenuItem.textContent = isHudVisible ? t.hudHide : t.hudShow;
@@ -419,6 +453,9 @@
       document.getElementById('eve-text').textContent = t.eveReady;
       document.getElementById('hint-text').textContent = t.hintText;
       if (document.getElementById('luna2-panel').classList.contains('active')) renderLuna2Panel();
+      if (window.refreshSkyLabels) window.refreshSkyLabels();
+      if (window.renderCommentsUI) window.renderCommentsUI();
+      if (window.buildPadsPanel && document.getElementById('pads-panel').classList.contains('active')) window.buildPadsPanel();
     }
 
     const menuDropdown = document.getElementById('menu-dropdown');
@@ -597,6 +634,7 @@
         SITES.forEach((st, i) => { if (st.b === 'M') h += '<button class="site-btn" onclick="goToSite(' + i + ')">' + st.n + '</button>'; });
         p.innerHTML = h;
       }
+      document.getElementById('pads-panel').classList.remove('active'); closeCommentsPanel();
       p.classList.toggle('active');
       document.getElementById('menu-dropdown').classList.remove('active');
     }
@@ -618,7 +656,89 @@
       panel.classList.add('active');
     }
     function closeLuna2Panel() { document.getElementById('luna2-panel').classList.remove('active'); }
-    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeLuna2Panel(); document.getElementById('sites-panel').classList.remove('active'); } });
+    window.addEventListener('keydown', (e) => { if (e.key === 'Escape') { closeLuna2Panel(); document.getElementById('sites-panel').classList.remove('active'); document.getElementById('pads-panel').classList.remove('active'); closeCommentsPanel(); } });
+
+
+    // ================== COMENTARIOS PÚBLICOS ==================
+    // Para que TODOS vean los comentarios hace falta una base de datos en línea.
+    // Pega aquí la URL de tu Firebase Realtime Database (ver instrucciones). Si queda vacía,
+    // los comentarios se guardan solo en este navegador.
+    const COMMENTS_DB_URL = '';   // ej: 'https://mi-proyecto-default-rtdb.firebaseio.com'
+    const COMMENTS_MAX = 50, COMMENTS_COOLDOWN_MS = 10000;
+    let commentsCache = [], commentsTimer = null, lastSentAt = 0, commentsStatus = '';
+    const trc = (es, en) => currentLang === 'es' ? es : en;
+    const cmEl = id => document.getElementById(id);
+
+    async function loadComments() {
+      try {
+        if (COMMENTS_DB_URL) {
+          const r = await fetch(COMMENTS_DB_URL.replace(/\/$/, '') + '/comments.json?orderBy=%22d%22&limitToLast=' + COMMENTS_MAX);
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          const o = await r.json() || {};
+          commentsCache = Object.keys(o).map(k => o[k]).filter(c => c && typeof c.t === 'string');
+          commentsStatus = '';
+        } else {
+          let a = []; try { a = JSON.parse(localStorage.getItem('solar_comments') || '[]'); } catch (e) {}
+          commentsCache = a;
+        }
+      } catch (e) { commentsStatus = trc('No se pudieron cargar los comentarios.', 'Could not load comments.'); }
+      commentsCache.sort((a, b) => (a.d || 0) - (b.d || 0));
+      renderCommentsList();
+    }
+    function renderCommentsList() {
+      const list = cmEl('comments-list'), atBottom = list.scrollHeight - list.scrollTop - list.clientHeight < 40;
+      list.textContent = '';
+      if (!commentsCache.length) { const e = document.createElement('div'); e.className = 'cm-item'; e.textContent = trc('Aún no hay comentarios. ¡Sé el primero!', 'No comments yet. Be the first!'); list.appendChild(e); }
+      commentsCache.slice(-COMMENTS_MAX).forEach(c => {
+        const d = document.createElement('div'); d.className = 'cm-item';
+        const b = document.createElement('b'); b.textContent = (c.n || trc('Anónimo', 'Anonymous')).slice(0, 20);
+        const s = document.createElement('small'); s.textContent = c.d ? new Date(c.d).toLocaleString(currentLang === 'es' ? 'es' : 'en', { dateStyle: 'short', timeStyle: 'short' }) : '';
+        const t = document.createElement('div'); t.textContent = c.t.slice(0, 200);
+        d.appendChild(b); d.appendChild(s); d.appendChild(t); list.appendChild(d);
+      });
+      if (atBottom) list.scrollTop = list.scrollHeight;
+      cmEl('comments-note').textContent = commentsStatus || (COMMENTS_DB_URL ? '' : trc('Modo local: solo tú ves estos comentarios. Conecta una base de datos (COMMENTS_DB_URL) para que todos los vean.', 'Local mode: only you see these comments. Connect a database (COMMENTS_DB_URL) so everyone sees them.'));
+    }
+    window.renderCommentsUI = function () {
+      cmEl('comments-menu-item').textContent = trc('💬 Comentarios', '💬 Comments');
+      cmEl('cm-title').textContent = trc('💬 COMENTARIOS DE LOS VIAJEROS', '💬 TRAVELERS\u2019 COMMENTS');
+      cmEl('cm-name').placeholder = trc('Tu nombre (opcional)', 'Your name (optional)');
+      cmEl('cm-text').placeholder = trc('Escribe un comentario…', 'Write a comment…');
+      cmEl('cm-send').textContent = trc('Enviar', 'Send');
+      renderCommentsList();
+    };
+    async function sendComment() {
+      const text = cmEl('cm-text').value.trim().slice(0, 200), name = cmEl('cm-name').value.trim().slice(0, 20);
+      if (!text) return;
+      const wait = COMMENTS_COOLDOWN_MS - (Date.now() - lastSentAt);
+      if (wait > 0) { commentsStatus = trc('Espera ' + Math.ceil(wait / 1000) + ' s para comentar de nuevo.', 'Wait ' + Math.ceil(wait / 1000) + ' s before commenting again.'); renderCommentsList(); return; }
+      const btn = cmEl('cm-send'); btn.disabled = true;
+      const c = { n: name, t: text, d: Date.now() };
+      try {
+        if (COMMENTS_DB_URL) {
+          const r = await fetch(COMMENTS_DB_URL.replace(/\/$/, '') + '/comments.json', { method: 'POST', body: JSON.stringify(c) });
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+        } else {
+          commentsCache.push(c);
+          try { localStorage.setItem('solar_comments', JSON.stringify(commentsCache.slice(-COMMENTS_MAX))); } catch (e) {}
+        }
+        lastSentAt = Date.now(); cmEl('cm-text').value = ''; commentsStatus = '';
+        await loadComments(); const l = cmEl('comments-list'); l.scrollTop = l.scrollHeight;
+      } catch (e) { commentsStatus = trc('No se pudo enviar el comentario.', 'Could not send the comment.'); renderCommentsList(); }
+      btn.disabled = false;
+    }
+    cmEl('cm-send').addEventListener('click', sendComment);
+    cmEl('cm-text').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendComment(); } });
+    function closeCommentsPanel() { cmEl('comments-panel').classList.remove('active'); clearInterval(commentsTimer); commentsTimer = null; }
+    function toggleCommentsPanel() {
+      const p = cmEl('comments-panel'), open = !p.classList.contains('active');
+      menuDropdown.classList.remove('active');
+      if (!open) { closeCommentsPanel(); return; }
+      cmEl('sites-panel').classList.remove('active'); cmEl('pads-panel').classList.remove('active');
+      window.renderCommentsUI(); p.classList.add('active'); loadComments();
+      commentsTimer = setInterval(loadComments, 15000);
+    }
+    window.renderCommentsUI();
 
     let isDraggingEve = false;
     let eveStartX = 0, eveStartY = 0;
@@ -919,6 +1039,7 @@
       });
       const _wp = new THREE.Vector3();
       window.goToSite = function (i) {
+        if (walk.active) takeOff();
         siteHitboxes[i].getWorldPosition(_wp);
         const center = SITES[i].b === 'm' ? earthMoonGroup.position : marsObj.position;
         const n = _wp.clone().sub(center).normalize();
@@ -926,6 +1047,429 @@
         velocity.set(0, 0, 0); isParkedOnMoon = false;
         document.getElementById('sites-panel').classList.remove('active');
       };
+
+      // ================== DECORACIÓN: CIELO, CONSTELACIONES, PLATAFORMAS ==================
+      const decoColliders = [];
+      const labelRedraws = [];
+      const Y_AXIS = new THREE.Vector3(0, 1, 0);
+      const gauss = () => (Math.random() + Math.random() + Math.random() - 1.5) / 1.5;
+      const SKY_R = 4600;
+      const PAD_R = 7;
+      const PAD_SNAP = 120;
+
+      function makeGlowTexture(rgb) {
+        const c = document.createElement('canvas'); c.width = c.height = 128;
+        const x = c.getContext('2d');
+        const g = x.createRadialGradient(64, 64, 0, 64, 64, 64);
+        g.addColorStop(0, 'rgba(' + rgb + ',1)'); g.addColorStop(0.25, 'rgba(' + rgb + ',0.55)');
+        g.addColorStop(0.6, 'rgba(' + rgb + ',0.12)'); g.addColorStop(1, 'rgba(' + rgb + ',0)');
+        x.fillStyle = g; x.fillRect(0, 0, 128, 128);
+        return new THREE.CanvasTexture(c);
+      }
+      const glowWhite = makeGlowTexture('255,255,255');
+      const glowCyan = makeGlowTexture('0,240,255');
+
+      function makeLabelSprite(getText, w, h, fontPx, fill, worldW, worldH, attenuate) {
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        const ctx = c.getContext('2d');
+        const tex = new THREE.CanvasTexture(c);
+        const mat = new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, fog: false, sizeAttenuation: attenuate });
+        const sp = new THREE.Sprite(mat); sp.scale.set(worldW, worldH, 1);
+        const redraw = () => {
+          ctx.clearRect(0, 0, w, h);
+          ctx.font = 'bold ' + fontPx + 'px Arial'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+          ctx.lineWidth = 6; ctx.strokeStyle = 'rgba(0,15,35,0.85)'; ctx.fillStyle = fill;
+          const s = getText(); ctx.strokeText(s, w / 2, h / 2); ctx.fillText(s, w / 2, h / 2);
+          tex.needsUpdate = true;
+        };
+        redraw(); labelRedraws.push(redraw);
+        return sp;
+      }
+      window.refreshSkyLabels = () => labelRedraws.forEach(f => f());
+
+      // ---------- Corona del Sol ----------
+      const corona = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeGlowTexture('255,190,80'), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false, opacity: 0.85 }));
+      corona.scale.set(640, 640, 1); sunGroup.add(corona);
+
+      // ---------- Cúpula celeste: estrellas en todas direcciones ----------
+      const sky = new THREE.Group(); scene.add(sky);
+      function dirAzEl(az, el) {
+        const a = az * Math.PI / 180, e = el * Math.PI / 180;
+        return new THREE.Vector3(Math.cos(e) * Math.sin(a), Math.sin(e), Math.cos(e) * Math.cos(a));
+      }
+      function randDir() {
+        const u = Math.random() * 2 - 1, a = Math.random() * Math.PI * 2, s = Math.sqrt(1 - u * u);
+        return new THREE.Vector3(s * Math.cos(a), u, s * Math.sin(a));
+      }
+      function addPoints(parent, pos, col, size, opts) {
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        if (col) g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+        const m = new THREE.PointsMaterial(Object.assign({ size, sizeAttenuation: false, vertexColors: !!col, map: glowWhite, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }, opts || {}));
+        const p = new THREE.Points(g, m); parent.add(p); return p;
+      }
+      (function () {
+        const N = 6500, p = new Float32Array(N * 3), col = new Float32Array(N * 3);
+        const pal = [[0.65, 0.78, 1], [1, 1, 1], [1, 0.93, 0.78], [1, 0.78, 0.62], [0.8, 0.85, 1]];
+        for (let i = 0; i < N; i++) {
+          const d = randDir().multiplyScalar(SKY_R), c = pal[(Math.random() * pal.length) | 0], b = 0.35 + Math.random() * 0.65;
+          p[i * 3] = d.x; p[i * 3 + 1] = d.y; p[i * 3 + 2] = d.z;
+          col[i * 3] = c[0] * b; col[i * 3 + 1] = c[1] * b; col[i * 3 + 2] = c[2] * b;
+        }
+        addPoints(sky, p, col, 3.2);
+      })();
+
+      // ---------- Vía Láctea ----------
+      (function () {
+        const n = new THREE.Vector3(0.35, 0.8, 0.5).normalize();
+        const e1 = new THREE.Vector3(1, 0, 0).cross(n).normalize(), e2 = n.clone().cross(e1).normalize();
+        const N = 5000, p = new Float32Array(N * 3), col = new Float32Array(N * 3);
+        let i = 0;
+        while (i < N) {
+          const phi = Math.random() * Math.PI * 2;
+          if (Math.random() > 0.55 + 0.45 * Math.sin(phi * 3 + 1)) continue;
+          const spread = gauss() * 0.2 * (0.5 + Math.random() * 0.7);
+          const v = e1.clone().multiplyScalar(Math.cos(phi)).addScaledVector(e2, Math.sin(phi)).addScaledVector(n, spread).normalize().multiplyScalar(SKY_R * 0.999);
+          const warm = Math.random(), b = 0.3 + Math.random() * 0.5;
+          p[i * 3] = v.x; p[i * 3 + 1] = v.y; p[i * 3 + 2] = v.z;
+          col[i * 3] = (0.7 + warm * 0.3) * b; col[i * 3 + 1] = (0.78 + warm * 0.07) * b; col[i * 3 + 2] = (1 - warm * 0.3) * b;
+          i++;
+        }
+        addPoints(sky, p, col, 2.4);
+        const glowA = makeGlowTexture('150,170,255'), glowB = makeGlowTexture('255,210,170');
+        for (let k = 0; k < 18; k++) {
+          const phi = k / 18 * Math.PI * 2;
+          const v = e1.clone().multiplyScalar(Math.cos(phi)).addScaledVector(e2, Math.sin(phi)).multiplyScalar(SKY_R * 0.995);
+          const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: k % 3 === 0 ? glowB : glowA, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false, opacity: 0.08 }));
+          sp.position.copy(v); sp.scale.set(1500, 1100, 1); sky.add(sp);
+        }
+      })();
+
+      // ---------- Nebulosas ----------
+      function makeNebulaTexture(rgb) {
+        const c = document.createElement('canvas'); c.width = c.height = 256;
+        const x = c.getContext('2d'); x.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < 26; i++) {
+          const px = 128 + gauss() * 55, py = 128 + gauss() * 55, r = 30 + Math.random() * 55;
+          const g = x.createRadialGradient(px, py, 0, px, py, r);
+          g.addColorStop(0, 'rgba(' + rgb + ',' + (0.1 + Math.random() * 0.12) + ')'); g.addColorStop(1, 'rgba(' + rgb + ',0)');
+          x.fillStyle = g; x.beginPath(); x.arc(px, py, r, 0, Math.PI * 2); x.fill();
+        }
+        x.globalCompositeOperation = 'destination-in';
+        const m = x.createRadialGradient(128, 128, 0, 128, 128, 128);
+        m.addColorStop(0, 'rgba(0,0,0,1)'); m.addColorStop(0.6, 'rgba(0,0,0,0.8)'); m.addColorStop(1, 'rgba(0,0,0,0)');
+        x.fillStyle = m; x.fillRect(0, 0, 256, 256);
+        return new THREE.CanvasTexture(c);
+      }
+      [[60, 10, '255,70,150', 2300], [140, -30, '40,220,200', 2000], [230, 15, '255,150,60', 2100], [300, -35, '140,90,255', 2400],
+       [10, -45, '70,140,255', 2200], [190, 40, '90,255,170', 1900], [270, 5, '255,90,90', 1700]].forEach(n => {
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeNebulaTexture(n[2]), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false, opacity: 0.55 }));
+        sp.position.copy(dirAzEl(n[0], n[1]).multiplyScalar(SKY_R * 0.98)); sp.scale.set(n[3], n[3], 1); sky.add(sp);
+      });
+
+      // ---------- Galaxias espirales lejanas ----------
+      function makeGalaxyTexture() {
+        const c = document.createElement('canvas'); c.width = c.height = 256;
+        const x = c.getContext('2d');
+        const core = x.createRadialGradient(128, 128, 0, 128, 128, 60);
+        core.addColorStop(0, 'rgba(255,240,210,0.95)'); core.addColorStop(0.35, 'rgba(255,210,150,0.35)'); core.addColorStop(1, 'rgba(255,200,140,0)');
+        x.fillStyle = core; x.fillRect(0, 0, 256, 256);
+        for (let i = 0; i < 5000; i++) {
+          const arm = i % 2, t = Math.pow(Math.random(), 0.7), r = t * 118;
+          const a = t * 6.2 + arm * Math.PI + gauss() * 0.35 * (1.15 - t);
+          const px = 128 + Math.cos(a) * r, py = 128 + Math.sin(a) * r;
+          const rr = Math.round(150 + (1 - t) * 105), gg = Math.round(170 + (1 - t) * 60), bb = Math.round(255 - (1 - t) * 90);
+          x.fillStyle = 'rgba(' + rr + ',' + gg + ',' + bb + ',' + (0.25 + Math.random() * 0.5) + ')';
+          const s = 0.6 + Math.random() * 1.3; x.fillRect(px, py, s, s);
+        }
+        return new THREE.CanvasTexture(c);
+      }
+      [[160, 40, 760, 360, 0.5], [20, -25, 560, 300, -0.8]].forEach(gx => {
+        const mat = new THREE.SpriteMaterial({ map: makeGalaxyTexture(), blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false, opacity: 0.9, rotation: gx[4] });
+        const sp = new THREE.Sprite(mat);
+        sp.position.copy(dirAzEl(gx[0], gx[1]).multiplyScalar(SKY_R * 0.97)); sp.scale.set(gx[2], gx[3], 1); sky.add(sp);
+      });
+
+      // ---------- Constelaciones ----------
+      // stars: [x, y, brillo, color(w blanca, b azul, o naranja, r roja)] en grados sobre el cielo
+      const CONSTELLATIONS = [
+        { es: 'Orión', en: 'Orion', az: 178, el: -28, scale: 1.7,
+          stars: [[0.15, 9.9, 0.8], [-4.8, 7.4, 1.5, 'o'], [2.7, 6.3, 1.1, 'b'], [-1.2, -1.9, 1.1, 'b'], [0, -1.2, 1.2, 'b'], [1.05, -0.3, 1.0, 'b'], [-3.0, -9.7, 1.0, 'b'], [5.4, -8.2, 1.5, 'b']],
+          lines: [[0, 1], [0, 2], [1, 3], [2, 5], [3, 4], [4, 5], [3, 6], [5, 7]] },
+        { es: 'Can Mayor', en: 'Canis Major', az: 150, el: -50, scale: 1.6,
+          stars: [[2.1, 7.3, 1.8, 'b'], [7.1, 6.0, 0.9, 'b'], [-3.3, -2.4, 1.0], [-1.1, -5.0, 1.2, 'b'], [-6.8, -5.3, 0.8, 'b']],
+          lines: [[1, 0], [0, 2], [2, 3], [2, 4]] },
+        { es: 'Cruz del Sur', en: 'Southern Cross', az: 215, el: -35, scale: 4.2,
+          stars: [[0.45, -3.1, 1.4, 'b'], [-0.15, 2.9, 1.1, 'r'], [-2.25, 0.3, 1.3, 'b'], [1.9, 1.3, 0.9, 'b']],
+          lines: [[0, 1], [2, 3]] },
+        { es: 'Escorpio', en: 'Scorpius', az: 250, el: -25, scale: 1.2,
+          stars: [[10.3, 12.2, 0.9], [11.5, 9.4, 1.1, 'b'], [11.7, 5.9, 0.8], [7.0, 6.4, 0.8], [5.2, 5.6, 1.6, 'r'], [3.8, 3.8, 0.8], [0.8, -2.3, 1.0], [0.5, -6.0, 0.8], [0, -10.4, 0.9], [-3.8, -11.2, 0.8], [-9.2, -11.0, 1.0], [-11.3, -8.1, 0.8], [-10.2, -7.0, 0.8], [-8.4, -5.1, 1.2, 'b'], [-7.8, -5.3, 0.8]],
+          lines: [[0, 1], [1, 2], [1, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [9, 10], [10, 11], [11, 12], [12, 13], [13, 14]] },
+        { es: 'Cisne', en: 'Cygnus', az: 120, el: -20, scale: 1.5,
+          stars: [[-5.8, 7.3, 1.3], [-2.0, 2.3, 1.1, 'o'], [8.2, -10, 1.0, 'o'], [-6.7, -4, 0.9], [5.3, 7.1, 0.9]],
+          lines: [[0, 1], [1, 2], [3, 1], [4, 1]] },
+        { es: 'Leo', en: 'Leo', az: 85, el: 8, scale: 1.2,
+          stars: [[9.4, -7, 1.3, 'b'], [9.7, -2.2, 0.8], [6.7, 0.8, 1.0, 'o'], [7.4, 4.4, 0.8], [13.1, 7, 0.8], [14.8, 4.8, 0.8], [-6.3, 1.5, 1.0], [-6.3, -3.6, 0.8], [-14.6, -4.4, 1.1, 'b']],
+          lines: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [2, 6], [6, 8], [8, 7], [7, 6], [7, 0]] },
+        { es: 'Osa Mayor', en: 'Ursa Major', az: 20, el: 25, scale: 1.3,
+          stars: [[11.3, 5.75, 1.1, 'o'], [11.5, 0.4, 1.0], [4.2, -2.3, 0.9], [1.2, 1.0, 0.7], [-4.2, 0, 1.1], [-8.4, -1.1, 1.0], [-11.7, -6.7, 1.0, 'b']],
+          lines: [[0, 1], [1, 2], [2, 3], [3, 0], [3, 4], [4, 5], [5, 6]] },
+        { es: 'Casiopea', en: 'Cassiopeia', az: 320, el: 28, scale: 1.8,
+          stars: [[6.4, -0.9, 0.9], [2.4, -3.5, 1.0, 'o'], [0.4, 0.7, 1.1, 'b'], [-3.2, 0.2, 0.9], [-6.75, 3.7, 0.8]],
+          lines: [[0, 1], [1, 2], [2, 3], [3, 4]] },
+        { es: 'Lira', en: 'Lyra', az: 300, el: -5, scale: 3,
+          stars: [[2.2, 2.8, 1.5, 'b'], [0.7, 3.7, 0.7], [0.7, 1.6, 0.7], [-1.3, 0.9, 0.7], [-2.2, -3.3, 0.8], [-0.4, -2.6, 0.8]],
+          lines: [[0, 1], [0, 2], [1, 2], [2, 3], [3, 4], [4, 5], [5, 2]] }
+      ];
+      const STAR_COL = { w: [1, 1, 1], b: [0.66, 0.8, 1], o: [1, 0.68, 0.42], r: [1, 0.45, 0.38] };
+      const cPos = [], cCol = [], hPos = [], hCol = [], lPos = [];
+      CONSTELLATIONS.forEach(cn => {
+        const c = dirAzEl(cn.az, cn.el);
+        const right = new THREE.Vector3().crossVectors(c, Y_AXIS).normalize();
+        const up = new THREE.Vector3().crossVectors(right, c).normalize();
+        const place = (x, y) => {
+          const ang = Math.hypot(x, y) * cn.scale * Math.PI / 180;
+          if (ang < 1e-6) return c.clone().multiplyScalar(SKY_R - 20);
+          const t = right.clone().multiplyScalar(x).addScaledVector(up, y).normalize();
+          return c.clone().multiplyScalar(Math.cos(ang)).addScaledVector(t, Math.sin(ang)).multiplyScalar(SKY_R - 20);
+        };
+        const pts = cn.stars.map(s => place(s[0], s[1]));
+        cn.stars.forEach((s, i) => {
+          const col = STAR_COL[s[3] || 'w'], br = Math.min(1, 0.55 + s[2] * 0.4);
+          cPos.push(pts[i].x, pts[i].y, pts[i].z); cCol.push(col[0] * br, col[1] * br, col[2] * br);
+          if (s[2] >= 1) { hPos.push(pts[i].x, pts[i].y, pts[i].z); hCol.push(col[0] * 0.8, col[1] * 0.8, col[2] * 0.8); }
+        });
+        cn.lines.forEach(l => { lPos.push(pts[l[0]].x, pts[l[0]].y, pts[l[0]].z, pts[l[1]].x, pts[l[1]].y, pts[l[1]].z); });
+        const minY = Math.min.apply(null, cn.stars.map(s => s[1])), avgX = cn.stars.reduce((a, s) => a + s[0], 0) / cn.stars.length;
+        const lbl = makeLabelSprite(() => (currentLang === 'es' ? cn.es : cn.en).toUpperCase(), 512, 128, 54, 'rgba(160,230,255,0.92)', 760, 190, true);
+        lbl.position.copy(place(avgX, minY - 3.4)); sky.add(lbl);
+      });
+      addPoints(sky, new Float32Array(cPos), new Float32Array(cCol), 7);
+      const haloStars = addPoints(sky, new Float32Array(hPos), new Float32Array(hCol), 22, { opacity: 0.55 });
+      (function () {
+        const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(lPos), 3));
+        sky.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: 0x66ccff, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending, depthWrite: false, fog: false })));
+      })();
+
+      // ---------- Órbitas de los planetas ----------
+      const orbitMat = new THREE.LineBasicMaterial({ color: 0x2f8fd0, transparent: true, opacity: 0.28, fog: false });
+      function orbitLoop(cx, cy, cz, r) {
+        const pts = []; for (let i = 0; i < 256; i++) { const a = i / 256 * Math.PI * 2; pts.push(new THREE.Vector3(cx + Math.cos(a) * r, cy, cz + Math.sin(a) * r)); }
+        scene.add(new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), orbitMat));
+      }
+      planetsData.forEach(d => orbitLoop(0, 12 - d.radius * 0.75, 0, d.distance));
+      orbitLoop(earthObj.position.x, earthObj.position.y, earthObj.position.z, 220);
+
+      // ---------- Cinturón de asteroides ----------
+      (function () {
+        const N = 1100, belt = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 0), new THREE.MeshStandardMaterial({ color: 0x8a7f73, roughness: 0.95, metalness: 0.05, flatShading: true }), N);
+        const dummy = new THREE.Object3D(); let placed = 0, guard = 0;
+        while (placed < N && guard++ < 20000) {
+          const a = Math.random() * Math.PI * 2, rad = 1150 + Math.random() * 150, y = -60 + gauss() * 20;
+          const px = Math.cos(a) * rad, pz = Math.sin(a) * rad; let bad = false;
+          for (const p of planetObjects) { if (Math.hypot(px - p.position.x, y - p.position.y, pz - p.position.z) < p.radius + 14) { bad = true; break; } }
+          if (bad) continue;
+          const s = 1.2 + Math.pow(Math.random(), 3) * 6;
+          dummy.position.set(px, y, pz); dummy.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
+          dummy.scale.set(s, s * (0.6 + Math.random() * 0.5), s * (0.7 + Math.random() * 0.5)); dummy.updateMatrix();
+          belt.setMatrixAt(placed++, dummy.matrix);
+        }
+        belt.count = placed; scene.add(belt);
+        // Cinturón de Kuiper (hielo y polvo, más allá de Neptuno)
+        const K = 2600, kp = new Float32Array(K * 3), kc = new Float32Array(K * 3);
+        for (let i = 0; i < K; i++) {
+          const a = Math.random() * Math.PI * 2, rad = 3300 + Math.random() * 600, b = 0.4 + Math.random() * 0.6;
+          kp[i * 3] = Math.cos(a) * rad; kp[i * 3 + 1] = -60 + gauss() * 70; kp[i * 3 + 2] = Math.sin(a) * rad;
+          kc[i * 3] = 0.7 * b; kc[i * 3 + 1] = 0.85 * b; kc[i * 3 + 2] = b;
+        }
+        addPoints(scene, kp, kc, 4);
+      })();
+
+      // ---------- Lunas decorativas de otros planetas ----------
+      const moonTexSets = { gray: ['#8d8d8d', '#4d4d4d'], brown: ['#8a7a6a', '#4a3f35'], ocher: ['#b8a27a', '#6e5d3a'], ice: ['#c9d3e0', '#8fa0b5'] };
+      const moonTexCache = {};
+      const getMoonTex = k => moonTexCache[k] || (moonTexCache[k] = generatePlanetTexture('craters', moonTexSets[k][0], moonTexSets[k][1]));
+      const moonsDeco = [];
+      [['Marte', 6, 155, 0.35, 'gray'], ['Marte', 4, 215, 0.22, 'brown'],
+       ['Júpiter', 14, 380, 0.2, 'ocher'], ['Júpiter', 12, 470, 0.14, 'ice'], ['Júpiter', 18, 580, 0.1, 'gray'], ['Júpiter', 16, 720, 0.07, 'brown'],
+       ['Saturno', 20, 490, 0.08, 'ocher'], ['Saturno', 11, 600, 0.06, 'ice'], ['Urano', 10, 250, 0.1, 'ice'], ['Neptuno', 12, 265, 0.09, 'ice']].forEach(d => {
+        const mesh = new THREE.Mesh(new THREE.SphereGeometry(d[1], 24, 24), new THREE.MeshStandardMaterial({ map: getMoonTex(d[4]), roughness: 0.9 }));
+        const m = { mesh, pl: planetObjects.find(p => p.name === d[0]), orb: d[2], speed: d[3], phase: Math.random() * Math.PI * 2, tilt: (Math.random() - 0.5) * 0.3 };
+        scene.add(mesh); moonsDeco.push(m);
+        decoColliders.push({ position: mesh.position, radius: d[1] });
+      });
+      function placeMoons(t) {
+        moonsDeco.forEach(m => {
+          const a = m.phase + t * m.speed;
+          m.mesh.position.set(m.pl.position.x + Math.cos(a) * m.orb, m.pl.position.y + Math.sin(a) * m.orb * m.tilt, m.pl.position.z + Math.sin(a) * m.orb);
+          m.mesh.rotation.y = a;
+        });
+      }
+      placeMoons(0);
+
+      // ---------- Cometas (órbitas elípticas alrededor del Sol) ----------
+      const comets = [];
+      [[900, 0.7, 75000, 0.35, 0.5], [1300, 0.55, 90000, 0.5, 2.0], [700, 0.8, 60000, -0.4, 4.0]].forEach(d => {
+        const g = new THREE.Group();
+        g.add(new THREE.Mesh(new THREE.SphereGeometry(5, 12, 12), new THREE.MeshBasicMaterial({ color: 0xe8f6ff, fog: false })));
+        const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowWhite, color: 0xa8dcff, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false, opacity: 0.9 }));
+        halo.scale.set(70, 70, 1); g.add(halo);
+        const N = 110, p = new Float32Array(N * 3), c = new Float32Array(N * 3);
+        for (let i = 0; i < N; i++) {
+          const t = i / N, f = Math.pow(1 - t, 1.5);
+          p[i * 3] = gauss() * t * 16; p[i * 3 + 1] = gauss() * t * 16; p[i * 3 + 2] = t * 420;
+          c[i * 3] = 0.55 * f; c[i * 3 + 1] = 0.8 * f; c[i * 3 + 2] = f;
+        }
+        const tail = addPoints(g, p, c, 9, { sizeAttenuation: true, opacity: 1 });
+        scene.add(g);
+        comets.push({ g, tail, p: d[0], e: d[1], h: d[2], eul: new THREE.Euler(d[3], d[4], 0), th: Math.random() * Math.PI * 2 });
+      });
+
+      // ---------- Estrellas fugaces ----------
+      const meteors = [];
+      for (let i = 0; i < 5; i++) {
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3));
+        g.setAttribute('color', new THREE.BufferAttribute(new Float32Array([1, 1, 1, 0, 0, 0]), 3));
+        const mat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, fog: false, opacity: 0 });
+        const line = new THREE.Line(g, mat); line.frustumCulled = false; line.visible = false; scene.add(line);
+        meteors.push({ line, pos: new THREE.Vector3(), dir: new THREE.Vector3(), life: 0, max: 0.8 });
+      }
+      let meteorTimer = 2;
+
+      // ---------- Polvo espacial alrededor de la cámara (da sensación de velocidad) ----------
+      const DUST_N = 500, DUST_D = 900;
+      const dustBase = new Float32Array(DUST_N * 3), dustPos = new Float32Array(DUST_N * 3);
+      for (let i = 0; i < dustBase.length; i++) dustBase[i] = Math.random() * DUST_D;
+      const dust = addPoints(scene, dustPos, null, 1.3, { sizeAttenuation: true, color: 0x9ad8ff, opacity: 0.6 });
+      dust.frustumCulled = false;
+
+      // ---------- Plataformas de aterrizaje ----------
+      const PAD_NAMES_EN = { 'Mercurio': 'Mercury', 'Venus': 'Venus', 'Tierra': 'Earth', 'Marte': 'Mars', 'Júpiter': 'Jupiter', 'Saturno': 'Saturn', 'Urano': 'Uranus', 'Neptuno': 'Neptune', 'Luna': 'Moon' };
+      const PAD_EMOJI = { 'Mercurio': '⚫', 'Venus': '🟡', 'Tierra': '🌍', 'Marte': '🔴', 'Júpiter': '🟠', 'Saturno': '🪐', 'Urano': '🔵', 'Neptuno': '🔷', 'Luna': '🌙' };
+      const PAD_LATLON = { 'Marte': [35, -100], 'Luna': [55, 120] };
+      const padTex = (function () {
+        const c = document.createElement('canvas'); c.width = c.height = 512; const x = c.getContext('2d');
+        x.fillStyle = '#0c1a2e'; x.beginPath(); x.arc(256, 256, 256, 0, Math.PI * 2); x.fill();
+        x.strokeStyle = '#00f0ff'; x.lineWidth = 14; x.beginPath(); x.arc(256, 256, 236, 0, Math.PI * 2); x.stroke();
+        x.lineWidth = 5; x.beginPath(); x.arc(256, 256, 196, 0, Math.PI * 2); x.stroke();
+        x.lineWidth = 10; x.beginPath(); x.arc(256, 256, 150, 0, Math.PI * 2); x.stroke();
+        x.strokeStyle = '#ffb300'; x.lineWidth = 12;
+        for (let i = 0; i < 12; i++) { const a = i / 12 * Math.PI * 2; x.beginPath(); x.moveTo(256 + Math.cos(a) * 205, 256 + Math.sin(a) * 205); x.lineTo(256 + Math.cos(a) * 226, 256 + Math.sin(a) * 226); x.stroke(); }
+        x.fillStyle = '#00f0ff'; x.font = 'bold 230px Arial'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('H', 256, 274);
+        return new THREE.CanvasTexture(c);
+      })();
+      const padSlabMat = new THREE.MeshStandardMaterial({ color: 0x1b2a40, metalness: 0.7, roughness: 0.35 });
+      const padDeckMat = new THREE.MeshBasicMaterial({ map: padTex, transparent: true, fog: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 });
+      const lightA = new THREE.MeshBasicMaterial({ color: 0xffb300 }), lightB = new THREE.MeshBasicMaterial({ color: 0x3a2600 });
+      const padLightGeo = new THREE.SphereGeometry(0.35, 8, 8);
+      const padBySphere = new Map(), pads = [];
+      const padBodies = planetObjects.concat([{ name: 'Luna', position: earthMoonGroup.position, radius: moonRadius, sphere: moonMesh }]);
+      padBodies.forEach((body, idx) => {
+        const ll = PAD_LATLON[body.name] || [20, 0], la = ll[0] * Math.PI / 180, lo = ll[1] * Math.PI / 180;
+        const dir = new THREE.Vector3(Math.cos(la) * Math.sin(lo), Math.sin(la), Math.cos(la) * Math.cos(lo));
+        const g = new THREE.Group();
+        const slab = new THREE.Mesh(new THREE.CylinderGeometry(PAD_R, PAD_R + 0.8, 1.6, 32), padSlabMat); slab.position.y = -0.7; g.add(slab);
+        const deck = new THREE.Mesh(new THREE.CircleGeometry(PAD_R - 0.3, 48), padDeckMat); deck.rotation.x = -Math.PI / 2; deck.position.y = 0.15; g.add(deck);
+        for (let i = 0; i < 8; i++) {
+          const a = i / 8 * Math.PI * 2, l = new THREE.Mesh(padLightGeo, i % 2 ? lightA : lightB);
+          l.position.set(Math.cos(a) * (PAD_R - 0.5), 0.4, Math.sin(a) * (PAD_R - 0.5)); g.add(l);
+        }
+        const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 1.8, 70, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0x00f0ff, transparent: true, opacity: 0.28, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false, fog: false }));
+        beam.position.y = 35; g.add(beam);
+        const tip = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowCyan, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false }));
+        tip.position.y = 72; tip.scale.set(16, 16, 1); g.add(tip);
+        const marker = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowCyan, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false, sizeAttenuation: false }));
+        marker.position.y = 74; marker.scale.set(0.05, 0.05, 1); g.add(marker);
+        const nm = body.name;
+        const label = makeLabelSprite(() => (currentLang === 'es' ? 'PLATAFORMA · ' + nm.toUpperCase() : 'LANDING PAD · ' + PAD_NAMES_EN[nm].toUpperCase()), 512, 96, 40, '#bff6ff', 0.32, 0.06, false);
+        label.position.y = 86; g.add(label);
+        g.position.copy(dir).multiplyScalar(body.radius);
+        g.quaternion.setFromUnitVectors(Y_AXIS, dir);
+        body.sphere.add(g);
+        const info = { name: nm, es: nm, en: PAD_NAMES_EN[nm], emoji: PAD_EMOJI[nm], body, group: g, dir, beam, label, marker, i: idx };
+        pads.push(info); padBySphere.set(body.sphere, info);
+      });
+      window.buildPadsPanel = function () {
+        const p = document.getElementById('pads-panel');
+        let h = '<h3>' + T('🛬 PLATAFORMAS DE ATERRIZAJE', '🛬 LANDING PADS') + '</h3>';
+        pads.forEach((pd, i) => { h += '<button class="site-btn" onclick="goToPad(' + i + ')">' + pd.emoji + ' ' + (currentLang === 'es' ? pd.es : pd.en) + '</button>'; });
+        p.innerHTML = h;
+      };
+      window.togglePadsPanel = function () {
+        window.buildPadsPanel();
+        document.getElementById('sites-panel').classList.remove('active'); closeCommentsPanel();
+        document.getElementById('pads-panel').classList.toggle('active');
+        document.getElementById('menu-dropdown').classList.remove('active');
+      };
+      window.goToPad = function (i) {
+        const pd = pads[i];
+        if (walk.active) takeOff();
+        pd.group.getWorldPosition(_a);
+        _b.copy(_a).sub(pd.body.position).normalize();
+        ship.position.copy(_a).addScaledVector(_b, 20);
+        velocity.set(0, 0, 0); isParkedOnMoon = false;
+        document.getElementById('pads-panel').classList.remove('active');
+        land(pd.body);
+      };
+
+      // ---------- Actualización por fotograma ----------
+      const _dv = new THREE.Vector3(), _dv2 = new THREE.Vector3();
+      function updateDecor(dt, t) {
+        sky.position.copy(camera.position);
+        haloStars.material.opacity = 0.5 + 0.12 * Math.sin(t * 1.7);
+        placeMoons(t);
+        // cometas
+        comets.forEach(c => {
+          const r = c.p / (1 + c.e * Math.cos(c.th));
+          c.th += (c.h / (r * r)) * dt;
+          _dv.set(r * Math.cos(c.th), 0, r * Math.sin(c.th)).applyEuler(c.eul).add(sunGroup.position);
+          c.g.position.copy(_dv);
+          _dv2.copy(_dv).sub(sunGroup.position); c.g.lookAt(_dv.add(_dv2));   // la cola apunta lejos del Sol (+Z)
+          c.tail.scale.setScalar(THREE.MathUtils.clamp(1800 / r, 0.5, 2.2));
+          c.tail.material.opacity = THREE.MathUtils.clamp(1.4 - r / 2600, 0.2, 1);
+        });
+        // estrellas fugaces
+        meteorTimer -= dt;
+        if (meteorTimer <= 0) {
+          const m = meteors.find(x => !x.line.visible);
+          if (m) {
+            m.pos.copy(camera.position).add(randDir().multiplyScalar(700 + Math.random() * 700));
+            m.dir.copy(randDir()); m.life = 0; m.max = 0.6 + Math.random() * 0.5; m.line.visible = true;
+          }
+          meteorTimer = 1.5 + Math.random() * 3;
+        }
+        meteors.forEach(m => {
+          if (!m.line.visible) return;
+          m.life += dt; if (m.life >= m.max) { m.line.visible = false; return; }
+          m.pos.addScaledVector(m.dir, 1400 * dt);
+          const a = m.line.geometry.attributes.position.array;
+          a[0] = m.pos.x; a[1] = m.pos.y; a[2] = m.pos.z;
+          a[3] = m.pos.x - m.dir.x * 110; a[4] = m.pos.y - m.dir.y * 110; a[5] = m.pos.z - m.dir.z * 110;
+          m.line.geometry.attributes.position.needsUpdate = true;
+          m.line.material.opacity = Math.sin(Math.PI * m.life / m.max);
+        });
+        // polvo espacial
+        const cx = camera.position.x, cy = camera.position.y, cz = camera.position.z, half = DUST_D / 2;
+        for (let i = 0; i < DUST_N; i++) {
+          dustPos[i * 3] = cx + ((((dustBase[i * 3] - cx) % DUST_D) + DUST_D) % DUST_D) - half;
+          dustPos[i * 3 + 1] = cy + ((((dustBase[i * 3 + 1] - cy) % DUST_D) + DUST_D) % DUST_D) - half;
+          dustPos[i * 3 + 2] = cz + ((((dustBase[i * 3 + 2] - cz) % DUST_D) + DUST_D) % DUST_D) - half;
+        }
+        dust.geometry.attributes.position.needsUpdate = true;
+        // plataformas: luces parpadeantes, faro y marcadores
+        const on = Math.sin(t * 6) > 0;
+        lightA.color.setHex(on ? 0xffb300 : 0x3a2600); lightB.color.setHex(on ? 0x3a2600 : 0xffb300);
+        pads.forEach(p => {
+          p.group.getWorldPosition(_dv);
+          const d = _dv.distanceTo(camera.position);
+          const lo = THREE.MathUtils.clamp(1 - (d - 700) / 1800, 0, 1);
+          p.label.material.opacity = lo; p.label.visible = lo > 0.02;
+          p.marker.material.opacity = THREE.MathUtils.clamp(1.1 - d / 6000, 0.35, 1);
+          p.beam.material.opacity = 0.2 + 0.1 * Math.sin(t * 3 + p.i);
+        });
+      }
+
 
       // --- NAVE ESPACIAL ---
       const ship = new THREE.Group();
@@ -999,14 +1543,14 @@
       const keyMap = { ArrowUp: 'w', ArrowDown: 's', ArrowLeft: 'a', ArrowRight: 'd', w: 'w', W: 'w', s: 's', S: 's', a: 'a', A: 'a', d: 'd', D: 'd', q: 'q', Q: 'q', e: 'e', E: 'e', ' ': 'turbo', Spacebar: 'turbo' };
       
       window.addEventListener('keydown', (e) => {
-        if (e.key === 'f' || e.key === 'F') {
-          isParkedOnMoon = !isParkedOnMoon;
-          if (isParkedOnMoon) triggerEveMessage(currentLang === 'es' ? "🚀 Nave estacionada en la base lunar. Girando sincronizada con la Luna." : "🚀 Ship parked on the moon base. Rotating synchronously with the Moon.");
-        }
+        if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+        if (e.key === 'f' || e.key === 'F') toggleLanding();
+        if ((e.key === 'e' || e.key === 'E') && walk.active) interactNearest();
         const mapped = e.code === 'Space' ? 'turbo' : keyMap[e.key];
         if (mapped) { keys[mapped] = true; e.preventDefault(); }
       });
       window.addEventListener('keyup', (e) => {
+        if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
         const mapped = e.code === 'Space' ? 'turbo' : keyMap[e.key];
         if (mapped) { keys[mapped] = false; e.preventDefault(); }
       });
@@ -1018,7 +1562,7 @@
         { position: earthMoonGroup.position, radius: moonRadius },
         { position: luna2Group.position, radius: 4 },
         { position: antennaWorld, radius: 1.2 }
-      ];
+      ].concat(decoColliders);
       const _dir = new THREE.Vector3();
       function pushOut(c) {
         _dir.subVectors(ship.position, c.position);
@@ -1039,11 +1583,142 @@
       const clock = new THREE.Clock();
       const velocity = new THREE.Vector3();
 
+      // --- ATERRIZAJE Y ASTRONAUTA ---
+      const T = (es, en) => currentLang === 'es' ? es : en;
+      const UP = new THREE.Vector3(0, 1, 0);
+      const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3(), _d = new THREE.Vector3(), _fw = new THREE.Vector3(), _hudP = new THREE.Vector3();
+      const _q = new THREE.Quaternion(), _m = new THREE.Matrix4();
+      const walk = { active: false, body: null, pos: new THREE.Vector3(), up: new THREE.Vector3(0, 1, 0), fwd: new THREE.Vector3(0, 0, -1), face: new THREE.Vector3(0, 0, -1), lastX: 0, t: 0, near: null };
+      const walkHintEl = document.getElementById('walk-hint');
+      let lastHint = '';
+      function setHint(t) { if (t !== lastHint) { lastHint = t; walkHintEl.textContent = t; walkHintEl.style.opacity = t ? 1 : 0; } }
+
+      function buildAstronaut() {
+        const g = new THREE.Group();
+        const white = new THREE.MeshStandardMaterial({ color: 0xf2f2f2, roughness: 0.5 });
+        const gold = new THREE.MeshStandardMaterial({ color: 0xffc94a, metalness: 0.8, roughness: 0.2 });
+        const grey = new THREE.MeshStandardMaterial({ color: 0x9aa3ad, roughness: 0.6 });
+        const add = (geo, mat, x, y, z) => { const m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); g.add(m); return m; };
+        add(new THREE.BoxGeometry(0.7, 0.8, 0.45), white, 0, 1.0, 0);
+        add(new THREE.SphereGeometry(0.38, 16, 16), white, 0, 1.7, 0);
+        add(new THREE.SphereGeometry(0.27, 16, 16), gold, 0, 1.72, -0.2).scale.set(1, 0.8, 0.6);
+        add(new THREE.BoxGeometry(0.55, 0.65, 0.25), grey, 0, 1.0, 0.33);
+        const limb = (x, y, len, boot) => {
+          const p = new THREE.Group(); p.position.set(x, y, 0);
+          const m = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.13, len, 8), white); m.position.y = -len / 2; p.add(m);
+          if (boot) { const b = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.16, 0.4), grey); b.position.set(0, -len + 0.02, -0.05); p.add(b); }
+          g.add(p); return p;
+        };
+        g.userData = { legL: limb(-0.18, 0.65, 0.65, true), legR: limb(0.18, 0.65, 0.65, true), armL: limb(-0.47, 1.3, 0.6, false), armR: limb(0.47, 1.3, 0.6, false) };
+        g.scale.setScalar(1.1);
+        return g;
+      }
+      const astro = buildAstronaut(); astro.visible = false; scene.add(astro);
+
+      function allBodies() { return planetObjects.concat([{ name: 'Luna', position: earthMoonGroup.position, radius: moonRadius, sphere: moonMesh }]); }
+      function nearestBody() {
+        let best = null, bd = Infinity;
+        for (const b of allBodies()) { const d = ship.position.distanceTo(b.position) - b.radius; if (d < bd) { bd = d; best = b; } }
+        return { b: best, d: bd };
+      }
+
+      function land(b) {
+        b.sphere.updateWorldMatrix(true, false);
+        b.sphere.attach(ship);                                   // la nave pasa a girar con el planeta
+        const padInfo = padBySphere.get(b.sphere);
+        const usePad = !!padInfo && ship.position.distanceTo(_a.copy(padInfo.dir).multiplyScalar(b.radius)) < PAD_SNAP;
+        const dir = usePad ? padInfo.dir.clone() : ship.position.clone().normalize();
+        ship.position.copy(dir).multiplyScalar(b.radius + (usePad ? 1.4 : 1.3));
+        ship.quaternion.setFromUnitVectors(UP, dir);
+        const t = new THREE.Vector3(0, 1, 0).cross(dir); if (t.lengthSq() < 1e-4) t.set(1, 0, 0).cross(dir); t.normalize();
+        walk.pos.copy(dir).multiplyScalar(b.radius).addScaledVector(t, 5).setLength(b.radius);
+        walk.fwd.copy(t); walk.face.copy(t);
+        b.sphere.add(astro); astro.visible = true;
+        walk.body = b; walk.active = true; walk.lastX = cameraAngleX; walk.t = 0;
+        velocity.set(0, 0, 0); isParkedOnMoon = false;
+        triggerEveMessage(T('🧑‍🚀 ¡Aterrizamos en ' + (usePad ? 'la plataforma de ' : '') + b.name + '! W A S D para caminar, arrastra para girar la cámara, E o clic para interactuar y F junto a la nave para despegar.',
+                            '🧑‍🚀 We landed on ' + (usePad ? 'the landing pad of ' : '') + b.name + '! W A S D to walk, drag to turn the camera, E or click to interact, F next to the ship to take off.'));
+      }
+      function takeOff() {
+        const sph = walk.body.sphere;
+        scene.attach(ship); scene.add(astro); astro.visible = false;
+        walk.active = false; camera.up.set(0, 1, 0);
+        sph.getWorldPosition(_c);
+        _b.copy(ship.position).sub(_c).normalize();
+        ship.position.addScaledVector(_b, 10); velocity.copy(_b).multiplyScalar(30);
+        walk.body = null; setHint('');
+      }
+      function toggleLanding() {
+        if (walk.active) {
+          astro.getWorldPosition(_a); ship.getWorldPosition(_b);
+          if (_a.distanceTo(_b) > 10) { triggerEveMessage(T('🚀 Acércate a la nave para despegar.', '🚀 Get closer to the ship to take off.')); return; }
+          takeOff(); return;
+        }
+        const n = nearestBody();
+        if (n.d > 40) { triggerEveMessage(T('🛬 Estás muy lejos de un planeta para aterrizar.', '🛬 You are too far from a planet to land.')); return; }
+        land(n.b);
+      }
+      function interactNearest() { if (walk.near) openSitePanel(walk.near); }
+
+      function updateWalker(dt) {
+        const R = walk.body.radius, up = walk.up.copy(walk.pos).normalize();
+        const dY = cameraAngleX - walk.lastX; walk.lastX = cameraAngleX;
+        if (dY) walk.fwd.applyAxisAngle(up, dY);
+        walk.fwd.addScaledVector(up, -walk.fwd.dot(up)).normalize();
+        const right = _a.copy(walk.fwd).cross(up);
+        const mv = _b.set(0, 0, 0);
+        if (keys.w) mv.add(walk.fwd); if (keys.s) mv.sub(walk.fwd); if (keys.d) mv.add(right); if (keys.a) mv.sub(right);
+        const moving = mv.lengthSq() > 0;
+        if (moving) {
+          mv.normalize();
+          const ang = (keys.turbo ? 36 : 14) * dt / R;
+          _q.setFromAxisAngle(_c.copy(up).cross(mv).normalize(), ang);
+          walk.pos.applyQuaternion(_q); walk.fwd.applyQuaternion(_q);
+          walk.face.lerp(mv.applyQuaternion(_q), Math.min(1, dt * 10));
+          walk.t += dt * (keys.turbo ? 14 : 9);
+        }
+        walk.pos.setLength(R);
+        up.copy(walk.pos).normalize();
+        walk.face.addScaledVector(up, -walk.face.dot(up));
+        if (walk.face.lengthSq() < 1e-6) walk.face.copy(walk.fwd);
+        walk.face.normalize();
+        _a.copy(walk.face).negate();
+        _b.copy(up).cross(_a).normalize();
+        _m.makeBasis(_b, up, _a);
+        astro.quaternion.setFromRotationMatrix(_m);
+        astro.position.copy(walk.pos);
+        const sw = moving ? Math.sin(walk.t) * 0.7 : 0, u = astro.userData;
+        u.legL.rotation.x = sw; u.legR.rotation.x = -sw; u.armL.rotation.x = -sw * 0.8; u.armR.rotation.x = sw * 0.8;
+        // misión cercana
+        astro.getWorldPosition(_c);
+        let best = null, bd = 9;
+        for (const h of siteHitboxes) { h.getWorldPosition(_a); const d = _a.distanceTo(_c); if (d < bd) { bd = d; best = h.userData.site; } }
+        walk.near = best;
+        setHint(best ? T('💬 Pulsa E o haz clic para hablar con ' + best.n, '💬 Press E or click to talk to ' + best.n)
+                     : T('🧑‍🚀 W A S D caminar · arrastra: girar cámara · F junto a la nave: despegar', '🧑‍🚀 W A S D walk · drag: turn camera · F next to the ship: take off'));
+      }
+      function walkCamera() {
+        const sph = walk.body.sphere;
+        sph.getWorldQuaternion(_q); sph.getWorldPosition(_c); astro.getWorldPosition(_a);
+        const up = _b.copy(_a).sub(_c).normalize();
+        _fw.copy(walk.fwd).applyQuaternion(_q);
+        camera.up.copy(up);
+        camera.position.copy(_a).addScaledVector(_fw, -9 * Math.cos(cameraAngleY * 0.6)).addScaledVector(up, 3 + cameraAngleY * 8);
+        camera.lookAt(_d.copy(_a).addScaledVector(up, 1.4));
+      }
+      function updateFlyHint() {
+        const n = nearestBody();
+        let atPad = false;
+        if (n.d < 40) { const pi = padBySphere.get(n.b.sphere); if (pi) { pi.group.getWorldPosition(_hudP); atPad = ship.position.distanceTo(_hudP) < PAD_SNAP; } }
+        setHint(n.d < 40 ? (atPad ? T('🛬 Pulsa F para aterrizar en la plataforma de ' + n.b.name, '🛬 Press F to land on the ' + (PAD_NAMES_EN[n.b.name] || n.b.name) + ' landing pad') : T('🛬 Pulsa F para aterrizar en ' + n.b.name, '🛬 Press F to land on ' + n.b.name)) : '');
+      }
+
       function animate() {
         requestAnimationFrame(animate);
         const delta = Math.min(clock.getDelta(), 0.05);
 
         if (teleportToEarthPos) {
+          if (walk.active) takeOff();
           ship.position.set(earthObj.position.x + 200, earthObj.position.y + 20, earthObj.position.z + 200);
           velocity.set(0, 0, 0); cameraAngleX = 0; teleportToEarthPos = false; isParkedOnMoon = false;
         }
@@ -1065,7 +1740,9 @@
         antennaWorld.set(luna2Group.position.x, luna2Group.position.y + 5.5, luna2Group.position.z);
         for (let i = 0; i < siteColliders.length; i++) siteHitboxes[i].getWorldPosition(siteColliders[i].position);
 
-        if (isParkedOnMoon) {
+        if (walk.active) {
+          updateWalker(delta);
+        } else if (isParkedOnMoon) {
           // Posición local respecto a la plataforma: tope de la base (+1) + distancia del centro de la nave a su punto más bajo (1.3)
           const targetWorldPos = new THREE.Vector3(0, 1 + 1.3, 0).applyMatrix4(basePad.matrixWorld);
           ship.position.copy(targetWorldPos);
@@ -1100,9 +1777,10 @@
           }
         }
 
-        posX.textContent = ship.position.x.toFixed(1);
-        posY.textContent = ship.position.y.toFixed(1);
-        posZ.textContent = ship.position.z.toFixed(1);
+        const dp = walk.active ? astro.getWorldPosition(_hudP) : ship.position;
+        posX.textContent = dp.x.toFixed(1);
+        posY.textContent = dp.y.toFixed(1);
+        posZ.textContent = dp.z.toFixed(1);
 
         const turboActive = !!keys.turbo;
         leftFlame.scale.set(turboActive ? 2.8 : 1.0, turboActive ? 2.8 : 1.0, turboActive ? 2.8 : 1.0);
@@ -1116,7 +1794,7 @@
           ship.position.y + Math.sin(cameraAngleY) * camDist + 10,
           ship.position.z + Math.cos(cameraAngleX) * Math.cos(cameraAngleY) * camDist
         );
-        camera.lookAt(ship.position.x, ship.position.y + 2, ship.position.z);
+        if (walk.active) { walkCamera(); } else { camera.up.set(0, 1, 0); camera.lookAt(ship.position.x, ship.position.y + 2, ship.position.z); updateFlyHint(); }
 
         // Actualizar entorno
         sunGroup.rotation.y += delta * 0.02;
@@ -1126,7 +1804,9 @@
         const displayedSpeed = Math.round(velocity.length() * 120);
         speedText.textContent = turboActive ? `🚀 TURBO · ${displayedSpeed} KM/H` : `${displayedSpeed} KM/H`;
         speedText.style.color = turboActive ? '#ffad42' : '#00f0ff';
+        if (walk.active) speedText.textContent = T('🧑‍🚀 CAMINANDO', '🧑‍🚀 WALKING');
 
+        updateDecor(delta, clock.elapsedTime);
         renderer.render(scene, camera);
       }
 
