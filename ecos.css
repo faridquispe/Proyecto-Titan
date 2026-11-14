@@ -1,0 +1,171 @@
+/* ==========================================================================
+   ECOS.CSS — Capa visual de "Ecos del Silencio" sobre el juego 3D.
+   1) Fichas de color y letra para todo el juego.
+   2) Ajustes a los paneles que ya existían (menos brillo, sin encimarse).
+   3) Estilos nuevos: medidor del archivo y el receptor (sintonizar,
+      escuchar, desafío).
+   ========================================================================== */
+:root{
+  /* Layout: el espacio 3D ocupa todo; paneles discretos en las esquinas y un receptor central cuando hablas con una máquina */
+  --e-void:#0a0f1f;
+  --e-panel:rgba(13,19,38,.92);
+  --e-panel-2:#18213f;
+  --e-line:rgba(160,175,220,.24);
+  --e-ink:#ece7da;
+  --e-muted:#a3acce;
+  --e-amber:#ffb84d;     /* lámpara del receptor: lo importante */
+  --e-signal:#80dcc6;    /* señal limpia / archivado */
+  --e-bad:#ff8a7a;
+  --e-display:'Big Shoulders Display','Arial Narrow',Impact,sans-serif;
+  --e-body:'Atkinson Hyperlegible',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;
+  --e-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+html,body{font-family:var(--e-body);background:var(--e-void)}
+
+/* ---------- 2. Paneles existentes: un solo estilo, sin brillo ---------- */
+.hud,.coords,.menu-btn,.menu-dropdown,.eve-bubble,#luna2-panel,#sites-panel,#pads-panel,#comments-panel,.speedometer,.mc-btn,#error-overlay{
+  background:var(--e-panel)!important;border:1px solid var(--e-line)!important;
+  box-shadow:0 10px 30px rgba(0,0,0,.35)!important;color:var(--e-ink);
+}
+.hud{top:74px;left:20px;padding:12px 16px;max-width:360px}
+.hud h1{font-family:var(--e-display);font-weight:800;font-size:1.25rem;letter-spacing:.06em;color:var(--e-amber)}
+.hud p{color:var(--e-ink);font-size:.85rem}
+.hud strong{color:var(--e-amber);font-family:var(--e-mono);font-weight:500}
+#hud-park{color:var(--e-ink)!important}
+.coords,.hint{display:none!important}
+.menu-btn span{background:var(--e-ink)}
+.menu-item,.site-btn{background:transparent!important;border:1px solid transparent!important;color:var(--e-ink)!important;font-family:var(--e-body)}
+.menu-item:hover,.site-btn:hover,.menu-item:focus-visible{background:rgba(255,184,77,.12)!important;border-color:rgba(255,184,77,.4)!important}
+.eve-bubble{color:var(--e-ink)}
+.eve-bubble strong,#sites-panel h3,#pads-panel h3,#comments-panel h3{font-family:var(--e-display);font-size:1rem;letter-spacing:.08em;color:var(--e-amber)!important}
+.eve-avatar{filter:drop-shadow(0 6px 10px rgba(0,0,0,.45))}
+.eve-screen:hover{background:rgba(255,230,150,.25);box-shadow:none}
+.speedometer{font-family:var(--e-mono);font-size:1rem;color:var(--e-ink)!important}
+.panel-close,#luna2-close{background:transparent!important;border:1px solid var(--e-line)!important;color:var(--e-ink)!important}
+.cm-item{border-left-color:var(--e-amber)!important;background:rgba(255,255,255,.04)!important}
+#comments-panel button.cm-send{background:var(--e-amber)!important;color:#1b1205!important}
+/* La única pista que brilla: lo que puedes hacer ahora (aterrizar, hablar) */
+#walk-hint{background:var(--e-panel)!important;border:1px solid var(--e-amber)!important;color:var(--e-ink)!important;
+  box-shadow:0 0 18px rgba(255,184,77,.35)!important;font-size:.95rem!important;font-family:var(--e-body)}
+.mc-btn{color:var(--e-ink)!important}
+.mc-btn.pressed{background:rgba(255,184,77,.35)!important;border-color:var(--e-amber)!important}
+
+/* Pantalla de inicio */
+#start-screen{background:radial-gradient(900px 500px at 70% 0%,#1d2a5a 0%,transparent 60%),rgba(10,15,31,.97)!important}
+#start-screen h1{font-family:var(--e-display);font-weight:800;font-size:clamp(3rem,11vw,6rem);line-height:.9;color:var(--e-ink);letter-spacing:.02em;margin-bottom:14px}
+#start-screen h1 em{font-style:normal;color:var(--e-amber)}
+#start-screen .e-eyebrow{font-family:var(--e-mono);font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--e-amber);margin-bottom:8px}
+#start-screen p{color:var(--e-ink)!important;font-size:1.05rem!important;max-width:520px!important}
+.lang-btn{background:transparent!important;border:1px solid var(--e-line)!important;color:var(--e-muted)!important;box-shadow:none!important}
+.lang-btn.active{border-color:var(--e-amber)!important;color:var(--e-ink)!important}
+#start-btn{background:var(--e-amber)!important;color:#1b1205!important;box-shadow:none!important;border-radius:6px!important;font-family:var(--e-body);font-size:1.1rem!important}
+
+/* Botón "?" para ver los controles */
+#e-help{position:absolute;top:20px;left:72px;z-index:30;width:44px;height:44px;border-radius:10px;
+  background:var(--e-panel);border:1px solid var(--e-line);color:var(--e-ink);font:700 1.1rem var(--e-body);cursor:pointer}
+#e-help:hover{border-color:var(--e-amber)}
+body.mobile-mode #e-help{display:none}
+
+/* ---------- 3a. Medidor del archivo (arriba a la derecha) ---------- */
+#e-meter{position:absolute;top:20px;right:20px;z-index:12;display:flex;flex-direction:column;gap:6px;align-items:flex-end;
+  background:var(--e-panel);border:1px solid var(--e-line);border-radius:10px;padding:10px 14px;cursor:pointer;color:var(--e-ink);font:inherit;min-width:190px}
+#e-meter:hover{border-color:var(--e-amber)}
+#e-meter .lbl{font-family:var(--e-mono);font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--e-muted)}
+#e-meter .num{font-family:var(--e-display);font-weight:800;font-size:1.6rem;line-height:1;font-variant-numeric:tabular-nums}
+#e-meter .num span{color:var(--e-amber)}
+#e-meter .bar{width:100%;height:6px;border-radius:3px;background:rgba(255,255,255,.08);overflow:hidden}
+#e-meter .bar i{display:block;height:100%;background:var(--e-amber);width:0;transition:width .4s}
+body.mobile-mode #e-meter{top:10px;right:10px;min-width:0;padding:6px 10px}
+body.mobile-mode #e-meter .num{font-size:1.2rem}
+body.mobile-mode .speedometer{top:76px!important}
+
+/* Lista de misiones con estado */
+#sites-panel{width:min(92%,340px)!important}
+.e-row{display:flex;gap:6px;align-items:stretch;margin-bottom:4px}
+.e-row .site-btn{flex:1;margin:0;display:flex;align-items:center;gap:8px;min-width:0}
+.e-row .site-btn .dot{flex:none;width:10px;height:10px;border-radius:50%;border:2px solid var(--e-amber)}
+.e-row.done .site-btn .dot{background:var(--e-signal);border-color:var(--e-signal)}
+.e-row .tune{flex:none;font:600 .72rem var(--e-mono);letter-spacing:.04em;text-transform:uppercase;color:var(--e-amber);
+  background:transparent;border:1px solid rgba(255,184,77,.45);border-radius:8px;padding:0 8px;cursor:pointer}
+.e-row .tune:hover{background:rgba(255,184,77,.15)}
+.e-note{font-size:.75rem;color:var(--e-muted);margin:2px 0 8px;line-height:1.35}
+
+/* ---------- 3b. Receptor ---------- */
+#e-overlay{position:fixed;inset:0;background:rgba(3,6,14,.86);z-index:60;overflow-y:auto;font-family:var(--e-body);color:var(--e-ink);
+  padding:max(16px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+#e-overlay[hidden]{display:none}
+.rx{max-width:760px;margin:0 auto;background:#121a33;border:1px solid var(--e-line);border-radius:8px;overflow:hidden}
+.rx-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 18px;border-bottom:1px solid var(--e-line);background:var(--e-panel-2)}
+.rx-eyebrow{font-family:var(--e-mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--e-muted)}
+.rx-head h2{font-family:var(--e-display);font-weight:800;font-size:2.2rem;line-height:1;margin:4px 0 0;text-transform:uppercase;color:var(--e-ink)}
+.rx-x{background:none;border:1px solid var(--e-line);color:var(--e-ink);border-radius:6px;width:40px;height:40px;font-size:20px;cursor:pointer;flex:none}
+.rx-phase{display:flex;font-family:var(--e-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;border-bottom:1px solid var(--e-line)}
+.rx-phase span{flex:1;padding:8px 6px;color:var(--e-muted);text-align:center;border-right:1px solid var(--e-line)}
+.rx-phase span:last-child{border-right:0}
+.rx-phase span.cur{color:#1b1205;background:var(--e-amber)}
+.rx-phase span.ok{color:var(--e-signal)}
+.rx-body{padding:18px;display:flex;flex-direction:column;gap:16px}
+.rx-body p{margin:0}
+.rx-scope{width:100%;height:auto;aspect-ratio:3/1;background:#050a10;border:1px solid var(--e-line);border-radius:4px;display:block}
+.rx-dial{display:flex;flex-direction:column;gap:6px}
+.rx-dial label{font-family:var(--e-mono);font-size:13px;color:var(--e-muted);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.rx-dial input[type=range]{width:100%;accent-color:var(--e-amber);height:34px}
+.rx-hint{font-size:15px;color:var(--e-muted)}
+.rx-hint strong{color:var(--e-ink)}
+.rx-lock{font-family:var(--e-mono);font-size:14px;color:var(--e-amber)}
+.rx-lock.ok{color:var(--e-signal)}
+.rx-voice{font-size:19px;line-height:1.6;min-height:6.5em;max-width:62ch}
+.rx-voice .cur{display:inline-block;width:.55em;height:1em;background:var(--e-amber);vertical-align:-2px;margin-left:2px;animation:rxblink 1s steps(2) infinite}
+@keyframes rxblink{50%{opacity:0}}
+.rx-prog{font-family:var(--e-mono);font-size:12px;color:var(--e-muted)}
+.rx-note{font-size:13px;color:var(--e-muted);font-style:italic}
+dl.rx-facts{display:grid;grid-template-columns:max-content 1fr;gap:6px 16px;margin:0;font-size:15px;border-top:1px solid var(--e-line);padding-top:14px}
+dl.rx-facts dt{font-family:var(--e-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--e-muted);padding-top:2px}
+dl.rx-facts dd{margin:0;min-width:0}
+.rx-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.rx-btn{font:700 1rem var(--e-body);background:var(--e-amber);color:#1b1205;border:0;border-radius:6px;padding:10px 18px;cursor:pointer;min-height:44px}
+.rx-btn.ghost{background:none;color:var(--e-ink);border:1px solid var(--e-line);font-weight:400}
+.rx-btn:disabled{opacity:.4;cursor:not-allowed}
+.rx-q{font-size:19px;font-weight:700}
+.rx-opts{display:flex;flex-direction:column;gap:8px}
+.rx-opt{font:inherit;font-size:16px;text-align:left;background:var(--e-panel-2);color:var(--e-ink);border:1px solid var(--e-line);border-radius:6px;padding:12px 14px;cursor:pointer}
+.rx-opt:hover:not(:disabled){border-color:var(--e-amber)}
+.rx-opt.right{border-color:var(--e-signal);background:rgba(128,220,198,.12)}
+.rx-opt.wrong{border-color:var(--e-bad);background:rgba(255,138,122,.1)}
+.rx-fb.ok{color:var(--e-signal)} .rx-fb.no{color:var(--e-bad)}
+.rx-game{width:100%;height:auto;display:block;background:#04070d;border:1px solid var(--e-line);border-radius:4px;touch-action:none}
+.rx-hud{display:flex;flex-wrap:wrap;gap:16px;font-family:var(--e-mono);font-size:14px;font-variant-numeric:tabular-nums}
+.rx-hud b{color:var(--e-amber);font-weight:500}
+.rx-archived{border:1px solid var(--e-signal);border-radius:6px;padding:12px 14px;color:var(--e-signal)}
+.rx-archived strong{display:block;font-family:var(--e-display);font-size:1.5rem;text-transform:uppercase}
+.rx-src a{color:var(--e-signal)}
+#e-overlay button:focus-visible,#e-overlay input:focus-visible,#e-meter:focus-visible,#e-help:focus-visible{outline:2px solid var(--e-signal);outline-offset:2px}
+@media (max-width:640px){
+  .rx-head h2{font-size:1.7rem}
+  dl.rx-facts{grid-template-columns:1fr;gap:2px}
+  dl.rx-facts dd{margin-bottom:8px}
+  .rx-voice{font-size:17px}
+}
+@media (prefers-reduced-motion:reduce){
+  .rx-voice .cur{animation:none}
+  .eve-avatar{animation:none!important}
+}
+body.mobile-mode #sites-panel,body.mobile-mode #pads-panel,body.mobile-mode #comments-panel{left:10px!important;top:64px!important;max-height:calc(100% - 300px)!important}
+/* Celular: EVE arriba a la izquierda (lejos de las flechas) y burbuja legible */
+body.mobile-mode .eve-container{top:64px!important;left:10px!important;bottom:auto!important;max-width:min(320px,calc(100% - 20px))!important;transform:none!important}
+body.mobile-mode .eve-avatar{width:64px}
+body.mobile-mode .eve-bubble{font-size:.8rem;padding:8px 12px}
+/* "¿Dónde está mi nave?" mientras caminas */
+#e-ship{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:14;display:flex;align-items:center;gap:10px;
+  background:var(--e-panel);border:1px solid var(--e-amber);border-radius:10px;padding:6px 6px 6px 12px;color:var(--e-ink);font-family:var(--e-body);font-size:.92rem;
+  box-shadow:0 0 18px rgba(255,184,77,.25);max-width:calc(100% - 32px)}
+#e-ship[hidden]{display:none}
+#e-ship .arrow{display:inline-block;color:var(--e-amber);font-size:1.1rem;line-height:1}
+#e-ship .txt{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+#e-ship .go{flex:none;font:700 .85rem var(--e-body);background:var(--e-amber);color:#1b1205;border:0;border-radius:6px;padding:8px 12px;cursor:pointer}
+body.mobile-mode #e-ship{top:auto;bottom:calc(270px + env(safe-area-inset-bottom,0px));font-size:.82rem}
+/* Minijuegos: botones que se mantienen pulsados */
+.rx-btn.hold{user-select:none;-webkit-user-select:none;touch-action:none;-webkit-touch-callout:none}
+.rx-btn.hold.on{background:#ffd08a;box-shadow:0 0 0 3px rgba(255,184,77,.35)}
+.rx-btn.ghost.hold.on{background:rgba(255,184,77,.25);color:var(--e-ink)}
+.rx-actions .rx-btn.ghost[aria-label]{min-width:52px;font-size:1.15rem}
